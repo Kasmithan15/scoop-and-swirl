@@ -20,7 +20,7 @@ Until `firebase-config.js` is filled in, the site keeps working in demo mode.
 ## 3. Turn on email/password sign-in
 1. **Build > Authentication > Get started**.
 2. **Sign-in method** tab: enable **Email/Password** and save.
-3. **Users** tab: **Add user** with the admin email `admin@scoopandswirl.com` (or your own) and a strong password. This is the admin login.
+3. **Users** tab: **Add user** with the admin email `icecream@gmail.com` (or your own) and a strong password. This is the admin login.
 4. **Settings** tab > **Authorized domains** > **Add domain**: `kasmithan15.github.io`.
 
 If you use a different admin email, change it in both `firebase-config.js` (`SCOOP_ADMIN_EMAIL`) and `firestore.rules`.

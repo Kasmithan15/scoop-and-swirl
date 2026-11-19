@@ -134,7 +134,8 @@ chips.forEach(chip => {
 // (this browser only). When Firebase is configured (firebase-config.js),
 // backend.js swaps in a Firebase version and fires "db-ready".
 // =====================================================================
-const LOCAL_ADMIN_HASH = '6a0ed9f0b881f4d045aa66d01bcf9d9ad38716f2af29fa9dc6bff79ba00a38c9'; // demo: admin@scoopandswirl.com / Swirl@2026
+// demo admin: icecream@gmail.com / icecream@2026! (also accepted without the '!')
+const LOCAL_ADMIN_HASHES = ['db38ff5ae1bd4a88732c586f36b30578f7862fe1b27aab8c766b4434b6eb9b4f', '71ab49cb3757624bdacccad4782b1658c9af4823656e0b7c70c5b5b1fc464006'];
 async function sha256(text) {
   if (!(window.crypto && crypto.subtle)) return null;
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
@@ -172,7 +173,7 @@ window.DB = {
   async adminSignIn(email, password) {
     const h = await sha256(email.toLowerCase() + ':' + password);
     if (h === null) throw new Error('Please open the site over https to sign in.');
-    const ok = h === LOCAL_ADMIN_HASH;
+    const ok = LOCAL_ADMIN_HASHES.includes(h);
     try { ok ? sessionStorage.setItem('scoop-admin', '1') : sessionStorage.removeItem('scoop-admin'); } catch (e) {}
     return ok;
   },

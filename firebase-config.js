@@ -22,4 +22,4 @@ window.SCOOP_FIREBASE_CONFIG = {
   appId: "1:1234567890:web:abc123"
 };
 */
-window.SCOOP_ADMIN_EMAIL = 'admin@scoopandswirl.com';
+window.SCOOP_ADMIN_EMAIL = 'icecream@gmail.com';
