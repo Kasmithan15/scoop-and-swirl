@@ -704,7 +704,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
       else cart.push({ name, price, style: 'cone', qty: 1 });
       save(); render();
       btn.classList.add('added'); btn.textContent = '✓ Added';
-      setTimeout(() => { btn.classList.remove('added'); btn.textContent = '+ Add to order'; }, 1200);
+      setTimeout(() => { btn.classList.remove('added'); btn.textContent = '+ Add'; }, 1200);
       fab.classList.remove('bump'); void fab.offsetWidth; fab.classList.add('bump');
     });
   });
@@ -830,3 +830,7 @@ document.querySelectorAll('input[type=password]').forEach(inp => {
   const wrap = document.createElement('span'); wrap.className = 'pw-wrap';
   inp.parentNode.insertBefore(wrap, inp); wrap.append(inp, btn);
 });
+
+// ---- luxury menu: number cards so they float in one after another ----
+document.querySelectorAll('#menu .cone-card').forEach((c, i) => c.style.setProperty('--k', i));
+document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k', i));

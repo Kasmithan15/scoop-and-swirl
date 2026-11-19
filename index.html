@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Yellowtail&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=202611192231">
+  <link rel="stylesheet" href="styles.css?v=202611192241">
 </head>
 <body>
 
@@ -469,8 +469,10 @@
   <section class="panel" id="menu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true" tabindex="-1">
     <div class="panel-inner">
   <section class="menu">
+    <p class="kicker-lux">La carta · Churned at dawn</p>
     <h2 class="section-title"><span>Menu</span></h2>
-    <p class="section-sub">Tap a scoop to see what's inside.</p>
+    <p class="ornament" aria-hidden="true"><i></i>✦<i></i></p>
+    <p class="section-sub">Small-batch gelato and sorbetti, made by hand every morning.</p>
 
     <div class="filter" role="group" aria-label="Filter flavors">
       <button class="chip is-active" data-filter="all">All</button>
@@ -480,64 +482,94 @@
     </div>
 
     <div class="cone-row">
-      <article class="cone-card" data-tags="classic" style="--scoop:#f6e7c8; --scoop-dark:#e3cfa6; --img:url('assets/img/vanilla.jpg');">
-        <button class="scoop" aria-expanded="false">
-          <span class="scoop-name">Vanilla Bean</span>
-          <span class="scoop-info">Madagascar vanilla with a ribbon of wild berry. The one that started it all.</span>
-        </button>
-        <div class="cone"></div>
-        <p class="price">$6.50</p>
-        <button type="button" class="add-btn">+ Add to order</button>
+      <article class="cone-card" data-tags="classic">
+        <figure class="m-photo"><img src="assets/img/vanilla.jpg" alt="Vanilla gelato with a berry ribbon in a glass coupe" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Classic</p>
+          <h3 class="scoop-name">Vanilla Bean</h3>
+          <p class="scoop-info">Madagascar vanilla with a ribbon of wild berry. The one that started it all.</p>
+          <div class="m-foot"><p class="price">$6.50</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
       </article>
 
-      <article class="cone-card" data-tags="classic" style="--scoop:#7b4a32; --scoop-dark:#5e3622; --img:url('assets/img/chocolate.jpg');">
-        <button class="scoop" aria-expanded="false">
-          <span class="scoop-name">Dark Chocolate Sea Salt</span>
-          <span class="scoop-info">70% dark chocolate finished with flaky sea salt from this coast.</span>
-        </button>
-        <div class="cone"></div>
-        <p class="price">$7.00</p>
-        <button type="button" class="add-btn">+ Add to order</button>
+      <article class="cone-card" data-tags="classic">
+        <figure class="m-photo"><img src="assets/img/chocolate.jpg" alt="Two scoops of dark chocolate gelato on a cone" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Classic</p>
+          <h3 class="scoop-name">Dark Chocolate Sea Salt</h3>
+          <p class="scoop-info">70% dark chocolate finished with flaky sea salt from this coast.</p>
+          <div class="m-foot"><p class="price">$7.00</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
       </article>
 
-      <article class="cone-card" data-tags="fruity" style="--scoop:#ff9fb6; --scoop-dark:#f07c98; --img:url('assets/img/strawberry.jpg');">
-        <button class="scoop" aria-expanded="false">
-          <span class="scoop-name">Strawberry Fields</span>
-          <span class="scoop-info">Roasted local strawberries folded into sweet cream.</span>
-        </button>
-        <div class="cone"></div>
-        <p class="price">$6.75</p>
-        <button type="button" class="add-btn">+ Add to order</button>
+      <article class="cone-card" data-tags="classic">
+        <figure class="m-photo"><img src="assets/img/pistachio.jpg" alt="Trays of pistachio and nut gelato in a display case" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Signature</p>
+          <h3 class="scoop-name">Pistachio di Bronte</h3>
+          <p class="scoop-info">Sicilian pistachios, slow-roasted and stone-ground.</p>
+          <div class="m-foot"><p class="price">$7.50</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
       </article>
 
-      <article class="cone-card" data-tags="fruity" style="--scoop:#f7c6d2; --scoop-dark:#e9a3b6; --img:url('assets/img/berry-swirl.jpg');">
-        <button class="scoop" aria-expanded="false">
-          <span class="scoop-name">Berry Swirl</span>
-          <span class="scoop-info">Raspberry ripple through vanilla, served in a crisp waffle cone.</span>
-        </button>
-        <div class="cone"></div>
-        <p class="price">$6.75</p>
-        <button type="button" class="add-btn">+ Add to order</button>
+      <article class="cone-card" data-tags="fruity">
+        <figure class="m-photo"><img src="assets/img/strawberry.jpg" alt="Strawberry gelato cones with fresh strawberries" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Fruit</p>
+          <h3 class="scoop-name">Strawberry Fields</h3>
+          <p class="scoop-info">Roasted local strawberries folded into sweet cream.</p>
+          <div class="m-foot"><p class="price">$6.75</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
       </article>
 
-      <article class="cone-card" data-tags="fruity vegan" style="--scoop:#ffd36e; --scoop-dark:#f4bb3c; --img:url('assets/img/mango.jpg');">
-        <button class="scoop" aria-expanded="false">
-          <span class="scoop-name">Mango Sunset</span>
-          <span class="scoop-info">Alphonso mango sorbet with a squeeze of lime. Dairy-free.</span>
-        </button>
-        <div class="cone"></div>
-        <p class="price">$6.75</p>
-        <button type="button" class="add-btn">+ Add to order</button>
+      <article class="cone-card" data-tags="fruity">
+        <figure class="m-photo"><img src="assets/img/berry-swirl.jpg" alt="Raspberry and vanilla gelato in a waffle cone" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Fruit</p>
+          <h3 class="scoop-name">Berry Swirl</h3>
+          <p class="scoop-info">Raspberry ripple through vanilla, in a crisp waffle cone.</p>
+          <div class="m-foot"><p class="price">$6.75</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
       </article>
 
-      <article class="cone-card" data-tags="vegan" style="--scoop:#eef3f2; --scoop-dark:#cfdcd9; --img:url('assets/img/coconut-beach.jpg');">
-        <button class="scoop" aria-expanded="false">
-          <span class="scoop-name">Coconut Lagoon</span>
-          <span class="scoop-info">Toasted coconut milk, light as a sea breeze. Fully plant-based.</span>
-        </button>
-        <div class="cone"></div>
-        <p class="price">$7.25</p>
-        <button type="button" class="add-btn">+ Add to order</button>
+      <article class="cone-card" data-tags="fruity vegan">
+        <figure class="m-photo"><img src="assets/img/mango.jpg" alt="Scoops of mango sorbet on a stone dish" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Sorbetto</p>
+          <h3 class="scoop-name">Mango Sunset</h3>
+          <p class="scoop-info">Alphonso mango with a squeeze of lime. Dairy-free.</p>
+          <div class="m-foot"><p class="price">$6.75</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
+      </article>
+
+      <article class="cone-card" data-tags="fruity vegan">
+        <figure class="m-photo"><img src="assets/img/citron-gelato.jpg" alt="Swirls of lemon sorbet in a display tray" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Sorbetto</p>
+          <h3 class="scoop-name">Amalfi Lemon</h3>
+          <p class="scoop-info">Bright Amalfi lemon sorbetto, light as a sea breeze.</p>
+          <div class="m-foot"><p class="price">$6.50</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
+      </article>
+
+      <article class="cone-card" data-tags="vegan">
+        <figure class="m-photo"><img src="assets/img/coconut-beach.jpg" alt="Coconut gelato cone held up on the beach" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Plant-based</p>
+          <h3 class="scoop-name">Coconut Lagoon</h3>
+          <p class="scoop-info">Toasted coconut milk, creamy and fully plant-based.</p>
+          <div class="m-foot"><p class="price">$7.25</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
+      </article>
+
+      <article class="cone-card" data-tags="classic">
+        <figure class="m-photo"><img src="assets/img/affogato.jpg" alt="Espresso being poured over gelato" loading="lazy"></figure>
+        <div class="m-body">
+          <p class="m-tag">Signature</p>
+          <h3 class="scoop-name">Affogato</h3>
+          <p class="scoop-info">Fior di latte drowned in a shot of hot espresso.</p>
+          <div class="m-foot"><p class="price">$8.00</p><button type="button" class="add-btn">+ Add</button></div>
+        </div>
       </article>
     </div>
   </section>
@@ -549,7 +581,7 @@
       <figure class="g g1"><img src="assets/img/beach-cones.jpg" alt="Three ice cream cones held up against the sea" loading="lazy"></figure>
       <figure class="g g2"><img src="assets/img/gelato-case.jpg" alt="Gelato display case full of colourful flavours" loading="lazy"></figure>
       <figure class="g g3"><img src="assets/img/cone-in-hand.jpg" alt="Hand holding a waffle cone piled with gelato" loading="lazy"></figure>
-      <figure class="g g4"><img src="assets/img/citron-gelato.jpg" alt="Swirls of lemon gelato in a display tray" loading="lazy"></figure>
+      <figure class="g g4"><img src="assets/img/gelato-trays.jpg" alt="Trays of pistachio, vanilla and berry gelato" loading="lazy"></figure>
     </div>
   </section>
     </div>
@@ -848,8 +880,8 @@
     </div>
   </section>
 
-  <script src="firebase-config.js?v=202611192231"></script>
-  <script src="script.js?v=202611192231"></script>
-  <script type="module" src="backend.js?v=202611192231"></script>
+  <script src="firebase-config.js?v=202611192241"></script>
+  <script src="script.js?v=202611192241"></script>
+  <script type="module" src="backend.js?v=202611192241"></script>
 </body>
 </html>
