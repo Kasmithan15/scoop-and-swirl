@@ -356,9 +356,12 @@ section { position: relative; }
 .visit {
   margin: 0 max(8px, 2vw) 100px;
   padding: 90px max(16px, 6vw) 110px;
+  /* real gelato display case, dimmed with a warm midnight veil so the cards stay readable */
   background:
-    linear-gradient(180deg, rgba(10, 38, 51, .55), rgba(10, 38, 51, .85)),
-    url('assets/img/boardwalk-sunset.jpg') center 60% / cover;
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(241,220,170,.16), transparent 70%),
+    linear-gradient(180deg, rgba(7, 20, 27, .55) 0%, rgba(7, 20, 27, .68) 55%, rgba(7, 20, 27, .86) 100%),
+    url('assets/img/gelato-display.jpg') center 55% / cover;
+  box-shadow: inset 0 0 0 1px rgba(200,164,100,.3), 0 40px 80px -40px rgba(0,0,0,.8);
   border-radius: 48% 52% 46% 54% / 110px 90px 120px 100px;
 }
 .visit .section-title { margin-bottom: 44px; }
