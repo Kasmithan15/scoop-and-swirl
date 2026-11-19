@@ -1023,3 +1023,12 @@ body.on-order .cart-fab { display: none; }
             mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 93%, transparent 100%);
   }
 }
+
+/* phones (v3): show the full scene exactly like the laptop — palms on both
+   sides and the Find Us signpost included — fitted to the screen width */
+@media (max-width: 760px) {
+  .scene-scroll .shop { width: 100%; margin-left: 0; }
+  .shop .tag, .shop .staff-sign { transform: scale(2.1); }
+  .shop .signpost { transform: scale(1.7); transform-origin: 0% 100%; }
+  .shop .members .tag { transform: scale(1.55); }
+}
