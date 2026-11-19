@@ -9,6 +9,7 @@
 //   settings/hours  { rows:  [{day, time}], updated }
 //   messages/{id}   { name, email, message, date }
 //   members/{uid}   { name, email, stamps, last }
+//   orders/{id}     { id, status, type, payment, name, phone, address, notes, items[], subtotal, deliveryFee, total, createdAt }
 // Who can do what is enforced by firestore.rules.
 // =====================================================================
 const config = window.SCOOP_FIREBASE_CONFIG;
@@ -114,6 +115,14 @@ if (config) {
     }),
     adminIsIn: guard(async () => { await authReady; return isAdminUser(auth.currentUser); }),
     adminSignOut: guard(async () => A.signOut(auth)),
+    placeOrder: guard(async o => { await F.setDoc(F.doc(db, 'orders', o.id), { ...o, createdAt: F.serverTimestamp() }); return o.id; }),
+    getOrder: guard(async id => { const s = await F.getDoc(F.doc(db, 'orders', id)); return s.exists() ? { ...s.data(), createdAt: toISO(s.data().createdAt) } : null; }),
+    listOrders: guard(async () => {
+      const q = F.query(F.collection(db, 'orders'), F.orderBy('createdAt', 'desc'), F.limit(300));
+      return (await F.getDocs(q)).docs.map(d => ({ ...d.data(), createdAt: toISO(d.data().createdAt) }));
+    }),
+    updateOrderStatus: guard(async (id, status) => F.updateDoc(F.doc(db, 'orders', id), { status })),
+
     adminName: async () => (auth.currentUser && (auth.currentUser.displayName || auth.currentUser.email.split('@')[0])) || 'Admin'
   };
 

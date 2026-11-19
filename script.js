@@ -180,7 +180,18 @@ window.DB = {
   },
   async adminIsIn() { try { return sessionStorage.getItem('scoop-admin') === '1'; } catch (e) { return false; } },
   async adminSignOut() { try { sessionStorage.removeItem('scoop-admin'); } catch (e) {} },
-  async adminName() { return 'Admin'; }
+  async adminName() { return 'Admin'; },
+  async placeOrder(order) {
+    const all = store.get('scoop-orders', []);
+    all.unshift({ ...order, createdAt: new Date().toISOString() });
+    store.set('scoop-orders', all.slice(0, 500));
+    return order.id;
+  },
+  async getOrder(id) { return store.get('scoop-orders', []).find(o => o.id === id) || null; },
+  async listOrders() { return store.get('scoop-orders', []); },
+  async updateOrderStatus(id, status) {
+    store.set('scoop-orders', store.get('scoop-orders', []).map(o => o.id === id ? { ...o, status } : o));
+  }
 };
 const onDBReady = fn => { fn(); window.addEventListener('db-ready', fn); };
 
@@ -455,7 +466,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   function showTab(name) {
     tabs.forEach(t => { const on = t.dataset.tab === name; t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); });
     panes.forEach(p => { p.hidden = p.dataset.pane !== name; });
-    ({ overview: renderOverview, menu: renderMenu, hours: renderHours, messages: renderMessages, members: renderMembers })[name]();
+    ({ overview: renderOverview, orders: renderOrders, menu: renderMenu, hours: renderHours, messages: renderMessages, members: renderMembers })[name]();
   }
   tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
   async function showDash() {
@@ -467,7 +478,73 @@ document.getElementById('year').textContent = new Date().getFullYear();
     showTab('overview');
   }
 
+  // ---------- orders ----------
+  const STATUS = {
+    new: 'New', preparing: 'Preparing',
+    out: o => o.type === 'pickup' ? 'Ready for pickup' : 'Out for delivery',
+    done: o => o.type === 'pickup' ? 'Picked up' : 'Delivered',
+    cancelled: 'Cancelled'
+  };
+  const label = o => { const v = STATUS[o.status] || o.status; return typeof v === 'function' ? v(o) : v; };
+  const NEXT = { new: 'preparing', preparing: 'out', out: 'done' };
+  const NEXT_LABEL = { new: 'Start preparing', preparing: o => o.type === 'pickup' ? 'Ready for pickup' : 'Out for delivery', out: o => o.type === 'pickup' ? 'Mark picked up' : 'Mark delivered' };
+  const money = n => '$' + Number(n || 0).toFixed(2);
+  const orderBox = dash.querySelector('.order-list');
+  const badge = dash.querySelector('.badge-new');
+  let orderFilter = 'open';
+  dash.querySelectorAll('.ochip').forEach(c => c.addEventListener('click', () => {
+    dash.querySelectorAll('.ochip').forEach(x => x.classList.toggle('is-active', x === c));
+    orderFilter = c.dataset.of; renderOrders();
+  }));
+  function updateBadge(list) {
+    const n = list.filter(o => o.status === 'new').length;
+    badge.textContent = n; badge.hidden = n === 0;
+    return n;
+  }
+  async function renderOrders() {
+    if (!orderBox.children.length) orderBox.innerHTML = '<p class="empty">Loading…</p>';
+    const all = await window.DB.listOrders().catch(e => { orderBox.innerHTML = `<p class="empty">Could not load orders: ${esc(e.message)}</p>`; return null; });
+    if (!all) return;
+    updateBadge(all);
+    const list = all.filter(o => orderFilter === 'all' ? true : orderFilter === 'done' ? o.status === 'done' : !['done', 'cancelled'].includes(o.status));
+    orderBox.innerHTML = list.length ? list.map(o => {
+      const nl = NEXT_LABEL[o.status]; const nextText = typeof nl === 'function' ? nl(o) : nl;
+      return `
+      <article class="ord-item">
+        <header><b>${esc(o.id)} · ${esc(o.name)}</b><span class="ord-status s-${esc(o.status)}">${esc(label(o))}</span></header>
+        <small>${esc(fmt(o.createdAt))} · ${o.type === 'pickup' ? '🏖 Pickup' : '🛵 Delivery'} · ${o.payment === 'card' ? '💳 Card' : '💵 Cash'} on ${o.type === 'pickup' ? 'pickup' : 'delivery'}</small>
+        <small>📞 <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>${o.type === 'delivery' ? ` · 📍 ${esc(o.address)}` : ''}</small>
+        <ul>${(o.items || []).map(i => `<li>${esc(i.qty)} × ${esc(i.name)} (${i.style === 'cone' ? 'cone' : 'cup'}) — ${money(i.unit * i.qty)}</li>`).join('')}</ul>
+        ${o.notes ? `<small>📝 ${esc(o.notes)}</small>` : ''}
+        <b>Total ${money(o.total)}</b>
+        <div class="ord-actions">
+          ${NEXT[o.status] ? `<button type="button" class="btn-scoop" data-oid="${esc(o.id)}" data-to="${NEXT[o.status]}">${esc(nextText)}</button>` : ''}
+          ${!['done', 'cancelled'].includes(o.status) ? `<button type="button" class="dash-ghost" data-oid="${esc(o.id)}" data-to="cancelled">Cancel</button>` : ''}
+        </div>
+      </article>`; }).join('') : '<p class="empty">No orders here yet. New online orders appear here.</p>';
+  }
+  orderBox.addEventListener('click', async e => {
+    const b = e.target.closest('[data-oid]'); if (!b) return;
+    if (b.dataset.to === 'cancelled' && !confirm('Cancel order ' + b.dataset.oid + '?')) return;
+    b.disabled = true;
+    await window.DB.updateOrderStatus(b.dataset.oid, b.dataset.to).catch(err => alert('Could not update: ' + err.message));
+    renderOrders();
+  });
+  // keep orders fresh while the dashboard is open
+  setInterval(() => {
+    if (dash.hidden || !document.querySelector('#admin.is-open')) return;
+    const active = dash.querySelector('.dash-tabs .tab.is-active');
+    if (active && active.dataset.tab === 'orders') renderOrders();
+    else window.DB.listOrders().then(updateBadge).catch(() => {});
+  }, 20000);
+
   async function renderOverview() {
+    const orders = await window.DB.listOrders().catch(() => []);
+    dash.querySelector('[data-stat=neworders]').textContent = updateBadge(orders);
+    const today = new Date().toDateString();
+    const sales = orders.filter(o => o.status !== 'cancelled' && o.createdAt && new Date(o.createdAt).toDateString() === today)
+      .reduce((t, o) => t + Number(o.total || 0), 0);
+    dash.querySelector('[data-stat=todaysales]').textContent = money(sales);
     dash.querySelector('[data-stat=flavors]').textContent = menu.filter(f => f.show).length;
     const open = document.querySelector('.open-now');
     dash.querySelector('[data-stat=status]').textContent = open && open.classList.contains('closed') ? 'Closed' : 'Open';
@@ -559,6 +636,169 @@ document.getElementById('year').textContent = new Date().getFullYear();
     await loadPublic();
     if (await window.DB.adminIsIn().catch(() => false)) showDash();
     else if (!dash.hidden) { dash.hidden = true; form.hidden = false; }
+  });
+})();
+
+// =====================================================================
+// Online order + delivery (customer side)
+// =====================================================================
+(function onlineOrder() {
+  const panel = document.getElementById('order');
+  if (!panel) return;
+  const CONE_EXTRA = 0.5, DELIVERY_FEE = 3, FREE_OVER = 30;
+  const money = n => '$' + Number(n || 0).toFixed(2);
+  const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let cart = store.get('scoop-cart', []);
+  const save = () => store.set('scoop-cart', cart);
+
+  const fab = document.querySelector('.cart-fab');
+  const list = panel.querySelector('.cart-list');
+  const empty = panel.querySelector('.cart-empty');
+  const form = panel.querySelector('.order-form');
+  const msg = form.querySelector('.form-msg');
+  const checkout = panel.querySelector('.checkout');
+  const track = panel.querySelector('.track-card');
+  const trackForm = panel.querySelector('.track-form');
+
+  const unit = i => Number(i.price) + (i.style === 'cone' ? CONE_EXTRA : 0);
+  const subtotal = () => cart.reduce((t, i) => t + unit(i) * i.qty, 0);
+  const isDelivery = () => form.elements.type.value === 'delivery';
+  const fee = () => (isDelivery() && cart.length && subtotal() < FREE_OVER) ? DELIVERY_FEE : 0;
+
+  function render() {
+    const count = cart.reduce((t, i) => t + i.qty, 0);
+    fab.hidden = count === 0;
+    fab.querySelector('.cf-count').textContent = count;
+    fab.querySelector('.cf-total').textContent = money(subtotal() + fee());
+    empty.hidden = cart.length > 0;
+    list.innerHTML = cart.map((i, n) => `
+      <li data-n="${n}">
+        <div>
+          <p class="ci-name">${esc(i.name)}</p>
+          <div class="ci-style">
+            <button type="button" data-style="cup" class="${i.style === 'cup' ? 'on' : ''}">Cup</button>
+            <button type="button" data-style="cone" class="${i.style === 'cone' ? 'on' : ''}">Waffle cone +${money(CONE_EXTRA)}</button>
+          </div>
+        </div>
+        <div class="qty"><button type="button" data-q="-1" aria-label="One less">−</button><b>${i.qty}</b><button type="button" data-q="1" aria-label="One more">+</button></div>
+        <span class="ci-price">${money(unit(i) * i.qty)}</span>
+      </li>`).join('');
+    form.querySelector('.sum-sub').textContent = money(subtotal());
+    form.querySelector('.fee-row').hidden = !isDelivery();
+    form.querySelector('.sum-fee').textContent = fee() ? money(fee()) : 'Free';
+    form.querySelector('.sum-tot').textContent = money(subtotal() + fee());
+    form.querySelector('.fee-note').hidden = !isDelivery();
+    form.querySelector('.addr-field').hidden = !isDelivery();
+    form.querySelector('.place-btn').disabled = cart.length === 0;
+  }
+
+  // "+ Add to order" on each flavor
+  document.querySelectorAll('.cone-card').forEach(card => {
+    const btn = card.querySelector('.add-btn'); if (!btn) return;
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const name = card.querySelector('.scoop-name').textContent.trim();
+      const price = parseFloat(card.querySelector('.price').textContent.replace('$', '')) || 0;
+      const hit = cart.find(i => i.name === name && i.style === 'cone');
+      if (hit) { hit.qty = Math.min(20, hit.qty + 1); hit.price = price; }
+      else cart.push({ name, price, style: 'cone', qty: 1 });
+      save(); render();
+      btn.classList.add('added'); btn.textContent = '✓ Added';
+      setTimeout(() => { btn.classList.remove('added'); btn.textContent = '+ Add to order'; }, 1200);
+      fab.classList.remove('bump'); void fab.offsetWidth; fab.classList.add('bump');
+    });
+  });
+
+  list.addEventListener('click', e => {
+    const li = e.target.closest('li[data-n]'); if (!li) return;
+    const item = cart[Number(li.dataset.n)];
+    const q = e.target.closest('[data-q]'), st = e.target.closest('[data-style]');
+    if (q) { item.qty += Number(q.dataset.q); if (item.qty <= 0) cart.splice(Number(li.dataset.n), 1); else item.qty = Math.min(20, item.qty); }
+    if (st) item.style = st.dataset.style;
+    save(); render();
+  });
+  form.addEventListener('change', render);
+
+  // hide the floating cart while the order page itself is open
+  new MutationObserver(() => document.body.classList.toggle('on-order', panel.classList.contains('is-open')))
+    .observe(panel, { attributes: true, attributeFilter: ['class'] });
+
+  const newId = () => 'SS-' + Array.from(crypto.getRandomValues(new Uint8Array(5)), b => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[b % 32]).join('');
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!cart.length) return;
+    const need = ['name', 'phone'].concat(isDelivery() ? ['address'] : []);
+    let ok = true;
+    need.forEach(n => { const f = form.elements[n]; const bad = !f.value.trim(); f.classList.toggle('is-invalid', bad); if (bad) ok = false; });
+    if (!ok) { msg.textContent = 'Please fill in your name, phone' + (isDelivery() ? ' and address.' : '.'); msg.className = 'form-msg err'; return; }
+    const order = {
+      id: newId(), status: 'new',
+      type: isDelivery() ? 'delivery' : 'pickup',
+      payment: form.elements.payment.value,
+      name: form.elements.name.value.trim().slice(0, 80),
+      phone: form.elements.phone.value.trim().slice(0, 30),
+      address: isDelivery() ? form.elements.address.value.trim().slice(0, 300) : '',
+      notes: form.elements.notes.value.trim().slice(0, 200),
+      items: cart.map(i => ({ name: i.name, style: i.style, qty: i.qty, unit: Number(unit(i).toFixed(2)) })),
+      subtotal: Number(subtotal().toFixed(2)), deliveryFee: fee(), total: Number((subtotal() + fee()).toFixed(2))
+    };
+    const btn = form.querySelector('.place-btn'); btn.disabled = true; msg.textContent = '';
+    try {
+      await window.DB.placeOrder(order);
+      const mine = store.get('scoop-my-orders', []); mine.unshift(order.id); store.set('scoop-my-orders', mine.slice(0, 20));
+      cart = []; save(); render();
+      form.elements.notes.value = '';
+      showTracking({ ...order, createdAt: new Date().toISOString() });
+    } catch (err) {
+      msg.textContent = 'Sorry, the order could not be placed: ' + err.message; msg.className = 'form-msg err';
+    } finally { btn.disabled = cart.length === 0; }
+  });
+
+  // ---- tracking ----
+  const STEPS = ['new', 'preparing', 'out', 'done'];
+  let timer = null, tracking = null;
+  function paint(o) {
+    track.querySelector('.t-name').textContent = o.name;
+    track.querySelector('.t-id').textContent = o.id;
+    track.querySelector('.t-out').textContent = o.type === 'pickup' ? 'Ready for pickup' : 'Out for delivery';
+    track.querySelector('.t-done').textContent = o.type === 'pickup' ? 'Picked up' : 'Delivered';
+    const at = STEPS.indexOf(o.status);
+    track.querySelectorAll('.tracker li').forEach((li, i) => { li.classList.toggle('on', at >= i); li.classList.toggle('now', at === i && o.status !== 'done'); });
+    track.querySelector('.t-cancel').hidden = o.status !== 'cancelled';
+    track.querySelector('.t-items').innerHTML = (o.items || []).map(i => `<li>${esc(i.qty)} × ${esc(i.name)} (${i.style === 'cone' ? 'cone' : 'cup'})</li>`).join('');
+    track.querySelector('.t-total').textContent = 'Total ' + money(o.total) + (o.payment === 'card' ? ' · card' : ' · cash') + ' on ' + (o.type === 'pickup' ? 'pickup' : 'delivery');
+  }
+  function showTracking(o) {
+    tracking = o.id; paint(o);
+    checkout.hidden = true; track.hidden = false;
+    clearInterval(timer);
+    timer = setInterval(async () => {
+      if (!panel.classList.contains('is-open') || track.hidden) return;
+      const fresh = await window.DB.getOrder(tracking).catch(() => null);
+      if (fresh) { paint(fresh); if (['done', 'cancelled'].includes(fresh.status)) clearInterval(timer); }
+    }, 15000);
+  }
+  track.querySelector('.new-order').addEventListener('click', () => { clearInterval(timer); track.hidden = true; checkout.hidden = false; render(); });
+
+  trackForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const m = trackForm.querySelector('.form-msg');
+    const id = trackForm.elements.oid.value.trim().toUpperCase();
+    if (!id) return;
+    const o = await window.DB.getOrder(id).catch(() => null);
+    if (!o) { m.textContent = 'No order found with that number.'; m.className = 'form-msg err'; return; }
+    m.textContent = ''; showTracking(o);
+    if (panel.scrollTo) panel.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  render();
+  // if this visitor has an order on the way, show its tracker first
+  onDBReady(async () => {
+    const last = store.get('scoop-my-orders', [])[0];
+    if (!last || cart.length) return;
+    const o = await window.DB.getOrder(last).catch(() => null);
+    if (o && !['done', 'cancelled'].includes(o.status)) showTracking(o);
   });
 })();
 

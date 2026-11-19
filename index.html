@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Yellowtail&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=202611191845">
+  <link rel="stylesheet" href="styles.css?v=202611191856">
 </head>
 <body>
 
@@ -25,6 +25,7 @@
       <a href="#menu">Menu</a>
       <a href="#story">Our Story</a>
       <a href="#visit">Find Us &amp; Contact</a>
+      <a href="#order">Order</a>
       <a href="#login" class="nav-login">Login</a>
     </nav>
   </header>
@@ -453,7 +454,7 @@
   <!-- quick buttons for phones -->
   <nav class="dock" aria-label="Quick links">
     <a href="#menu"><span>🍦</span>Menu</a>
-    <a href="#story"><span>📖</span>Story</a>
+    <a href="#order"><span>🛵</span>Order</a>
     <a href="#visit"><span>📍</span>Find Us</a>
     <a href="#login"><span>👤</span>Login</a>
   </nav>
@@ -480,6 +481,7 @@
         </button>
         <div class="cone"></div>
         <p class="price">$6.50</p>
+        <button type="button" class="add-btn">+ Add to order</button>
       </article>
 
       <article class="cone-card" data-tags="classic" style="--scoop:#7b4a32; --scoop-dark:#5e3622; --img:url('assets/img/chocolate.jpg');">
@@ -489,6 +491,7 @@
         </button>
         <div class="cone"></div>
         <p class="price">$7.00</p>
+        <button type="button" class="add-btn">+ Add to order</button>
       </article>
 
       <article class="cone-card" data-tags="fruity" style="--scoop:#ff9fb6; --scoop-dark:#f07c98; --img:url('assets/img/strawberry.jpg');">
@@ -498,6 +501,7 @@
         </button>
         <div class="cone"></div>
         <p class="price">$6.75</p>
+        <button type="button" class="add-btn">+ Add to order</button>
       </article>
 
       <article class="cone-card" data-tags="fruity" style="--scoop:#f7c6d2; --scoop-dark:#e9a3b6; --img:url('assets/img/berry-swirl.jpg');">
@@ -507,6 +511,7 @@
         </button>
         <div class="cone"></div>
         <p class="price">$6.75</p>
+        <button type="button" class="add-btn">+ Add to order</button>
       </article>
 
       <article class="cone-card" data-tags="fruity vegan" style="--scoop:#ffd36e; --scoop-dark:#f4bb3c; --img:url('assets/img/mango.jpg');">
@@ -516,6 +521,7 @@
         </button>
         <div class="cone"></div>
         <p class="price">$6.75</p>
+        <button type="button" class="add-btn">+ Add to order</button>
       </article>
 
       <article class="cone-card" data-tags="vegan" style="--scoop:#eef3f2; --scoop-dark:#cfdcd9; --img:url('assets/img/coconut-beach.jpg');">
@@ -525,6 +531,7 @@
         </button>
         <div class="cone"></div>
         <p class="price">$7.25</p>
+        <button type="button" class="add-btn">+ Add to order</button>
       </article>
     </div>
   </section>
@@ -668,6 +675,78 @@
     </div>
   </section>
 
+  <!-- ===== ORDER PANEL (online order + delivery) ===== -->
+  <section class="panel" id="order" role="dialog" aria-modal="true" aria-label="Order online" aria-hidden="true" tabindex="-1">
+    <div class="panel-inner">
+  <section class="order">
+    <h2 class="section-title"><span>Order Online</span></h2>
+    <p class="section-sub">Delivered to your door, or ready to pick up at the boardwalk.</p>
+
+    <div class="order-wrap">
+      <!-- checkout -->
+      <div class="checkout">
+        <div class="order-card cart-card">
+          <h3>Your order</h3>
+          <ul class="cart-list"></ul>
+          <p class="cart-empty">Your cart is empty. Add flavors from the <a href="#menu">Menu</a>.</p>
+        </div>
+
+        <form class="order-card order-form" novalidate>
+          <h3>Delivery details</h3>
+          <div class="seg" role="radiogroup" aria-label="Delivery or pickup">
+            <label><input type="radio" name="type" value="delivery" checked><span>🛵 Delivery</span></label>
+            <label><input type="radio" name="type" value="pickup"><span>🏖 Pickup</span></label>
+          </div>
+          <label><span>Your name</span><input type="text" name="name" required autocomplete="name" maxlength="80"></label>
+          <label><span>Phone</span><input type="tel" name="phone" required autocomplete="tel" maxlength="30"></label>
+          <label class="addr-field"><span>Delivery address</span><textarea name="address" rows="2" required autocomplete="street-address" maxlength="300"></textarea></label>
+          <label><span>Notes (optional)</span><input type="text" name="notes" maxlength="200" placeholder="Gate code, extra napkins…"></label>
+          <div class="seg" role="radiogroup" aria-label="Payment">
+            <label><input type="radio" name="payment" value="cash" checked><span>💵 Cash on delivery</span></label>
+            <label><input type="radio" name="payment" value="card"><span>💳 Card on delivery</span></label>
+          </div>
+          <div class="summary">
+            <p><span>Subtotal</span><b class="sum-sub">$0.00</b></p>
+            <p class="fee-row"><span>Delivery</span><b class="sum-fee">$3.00</b></p>
+            <p class="sum-total"><span>Total</span><b class="sum-tot">$0.00</b></p>
+            <p class="small fee-note">Free delivery on orders over $30.</p>
+          </div>
+          <button type="submit" class="btn-scoop place-btn">Place order</button>
+          <p class="form-msg" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <!-- confirmation + tracking -->
+      <div class="order-card track-card" hidden>
+        <p class="card-label">Order placed 🎉</p>
+        <p class="hello">Thank you, <span class="t-name"></span></p>
+        <p class="t-id-line">Order number <b class="t-id"></b></p>
+        <ol class="tracker">
+          <li data-s="new"><i></i><span>Received</span></li>
+          <li data-s="preparing"><i></i><span>Preparing</span></li>
+          <li data-s="out"><i></i><span class="t-out">Out for delivery</span></li>
+          <li data-s="done"><i></i><span class="t-done">Delivered</span></li>
+        </ol>
+        <p class="t-cancel" hidden>This order was cancelled. Please call us if this is a surprise.</p>
+        <ul class="t-items"></ul>
+        <p class="t-total"></p>
+        <button type="button" class="btn-scoop new-order">Start a new order</button>
+      </div>
+
+      <form class="order-card track-form" novalidate>
+        <h3>Track an order</h3>
+        <label><span>Order number</span><input type="text" name="oid" placeholder="SS-XXXXX" maxlength="12" autocapitalize="characters"></label>
+        <button type="submit" class="dash-ghost">Track</button>
+        <p class="form-msg" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+    </div>
+  </section>
+
+  <!-- floating cart -->
+  <a href="#order" class="cart-fab" hidden aria-label="View your order"><span class="cf-icon">🛒</span><span class="cf-count">0</span><span class="cf-total">$0.00</span><span class="cf-go">Checkout ›</span></a>
+
   <!-- ===== ADMIN PANEL (staff only) ===== -->
   <section class="panel" id="admin" role="dialog" aria-modal="true" aria-label="Staff admin login" aria-hidden="true" tabindex="-1">
     <div class="panel-inner">
@@ -702,6 +781,7 @@
 
         <div class="dash-tabs" role="tablist" aria-label="Dashboard sections">
           <button type="button" class="tab is-active" data-tab="overview" role="tab" aria-selected="true">Overview</button>
+          <button type="button" class="tab" data-tab="orders" role="tab" aria-selected="false">Orders <em class="badge-new" hidden></em></button>
           <button type="button" class="tab" data-tab="menu" role="tab" aria-selected="false">Menu</button>
           <button type="button" class="tab" data-tab="hours" role="tab" aria-selected="false">Hours</button>
           <button type="button" class="tab" data-tab="messages" role="tab" aria-selected="false">Messages</button>
@@ -710,12 +790,14 @@
 
         <div class="dash-pane" data-pane="overview">
           <ul class="stat-row">
+            <li><b data-stat="neworders">0</b><span>New orders</span></li>
+            <li><b data-stat="todaysales">$0</b><span>Sales today</span></li>
             <li><b data-stat="flavors">0</b><span>Flavors on the menu</span></li>
             <li><b data-stat="messages">0</b><span>Messages</span></li>
             <li><b data-stat="members">0</b><span>Members</span></li>
             <li><b data-stat="status">–</b><span>Shop right now</span></li>
           </ul>
-          <p class="dash-hint">Use the tabs to edit the menu and hours, or read messages from the Find Us page.</p>
+          <p class="dash-hint">Use the tabs to manage orders, edit the menu and hours, or read messages.</p>
         </div>
 
         <div class="dash-pane" data-pane="menu" hidden>
@@ -740,6 +822,15 @@
           <div class="msg-list"></div>
         </div>
 
+        <div class="dash-pane" data-pane="orders" hidden>
+          <div class="order-filter" role="group" aria-label="Filter orders">
+            <button type="button" class="ochip is-active" data-of="open">Open</button>
+            <button type="button" class="ochip" data-of="all">All</button>
+            <button type="button" class="ochip" data-of="done">Delivered</button>
+          </div>
+          <div class="order-list"></div>
+        </div>
+
         <div class="dash-pane" data-pane="members" hidden>
           <div class="member-list"></div>
         </div>
@@ -751,8 +842,8 @@
     </div>
   </section>
 
-  <script src="firebase-config.js?v=202611191845"></script>
-  <script src="script.js?v=202611191845"></script>
-  <script type="module" src="backend.js?v=202611191845"></script>
+  <script src="firebase-config.js?v=202611191856"></script>
+  <script src="script.js?v=202611191856"></script>
+  <script type="module" src="backend.js?v=202611191856"></script>
 </body>
 </html>

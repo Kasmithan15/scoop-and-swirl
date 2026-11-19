@@ -5,6 +5,7 @@ Firebase gives the site real, secure logins and shared data:
 - **Admin dashboard**: secure sign-in; menu and hours edits show for every visitor.
 - **Find Us form**: messages from any phone arrive in the admin dashboard.
 - **Members board**: real customer accounts with scoop stamps.
+- **Online orders**: orders from any phone arrive in the admin **Orders** tab, and customers track their status live.
 
 Until `firebase-config.js` is filled in, the site keeps working in demo mode.
 
@@ -38,3 +39,4 @@ Commit and push `firebase-config.js`. The site updates at
 - STAFF ONLY sign: sign in with the admin user. The dashboard should say **Connected to Firebase**.
 - Edit a flavor price and save, then open the site on a phone. The new price shows.
 - Send a message from Find Us on a phone. It appears under **Messages**.
+- Place an order on a phone, move it to **Preparing** in the admin **Orders** tab, and watch the phone's tracker update.
