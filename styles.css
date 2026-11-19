@@ -1032,3 +1032,10 @@ body.on-order .cart-fab { display: none; }
   .shop .signpost { transform: scale(1.7); transform-origin: 0% 100%; }
   .shop .members .tag { transform: scale(1.55); }
 }
+
+/* phones: no bottom bar — the shop's own labels open every page */
+@media (max-width: 760px) {
+  .dock { display: none !important; }
+  .hero { padding-bottom: 28px; }
+  .cart-fab { bottom: 18px; }
+}
