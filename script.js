@@ -128,10 +128,64 @@ chips.forEach(chip => {
   el.classList.toggle('closed', !open);
 })();
 
-// ---- Contact form (front-end only for now) ----
+// =====================================================================
+// DATA LAYER
+// The site talks to window.DB. By default it's the local demo store
+// (this browser only). When Firebase is configured (firebase-config.js),
+// backend.js swaps in a Firebase version and fires "db-ready".
+// =====================================================================
+const LOCAL_ADMIN_HASH = '6a0ed9f0b881f4d045aa66d01bcf9d9ad38716f2af29fa9dc6bff79ba00a38c9'; // demo: admin@scoopandswirl.com / Swirl@2026
+async function sha256(text) {
+  if (!(window.crypto && crypto.subtle)) return null;
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+window.DB = {
+  remote: false,
+  async getMenu() { return store.get('scoop-menu', null); },
+  async saveMenu(items) { store.set('scoop-menu', items); },
+  async resetMenu() { store.del('scoop-menu'); },
+  async getHours() { return store.get('scoop-hours', null); },
+  async saveHours(rows) { store.set('scoop-hours', rows); },
+  async resetHours() { store.del('scoop-hours'); },
+  async addMessage(m) {
+    const inbox = store.get('scoop-messages', []);
+    inbox.unshift({ id: String(Date.now()), ...m, date: new Date().toISOString() });
+    store.set('scoop-messages', inbox.slice(0, 200));
+  },
+  async listMessages() { return store.get('scoop-messages', []).map((m, i) => ({ id: m.id || String(i), ...m })); },
+  async deleteMessage(id) { store.set('scoop-messages', store.get('scoop-messages', []).filter((m, i) => (m.id || String(i)) !== id)); },
+  async memberSignIn(mode, name, email, password) {
+    const saved = store.get('scoop-member', null);
+    const member = (saved && saved.email === email)
+      ? { ...saved, stamps: Math.min(10, saved.stamps + 1) }
+      : { name: name || email.split('@')[0], email, stamps: 1 };
+    store.set('scoop-member', member);
+    const list = store.get('scoop-members', []).filter(m => m.email !== member.email);
+    list.unshift({ ...member, last: new Date().toISOString() });
+    store.set('scoop-members', list.slice(0, 500));
+    return member;
+  },
+  async memberCurrent() { return store.get('scoop-member', null); },
+  async memberSignOut() { store.del('scoop-member'); },
+  async listMembers() { return store.get('scoop-members', []); },
+  async adminSignIn(email, password) {
+    const h = await sha256(email.toLowerCase() + ':' + password);
+    if (h === null) throw new Error('Please open the site over https to sign in.');
+    const ok = h === LOCAL_ADMIN_HASH;
+    try { ok ? sessionStorage.setItem('scoop-admin', '1') : sessionStorage.removeItem('scoop-admin'); } catch (e) {}
+    return ok;
+  },
+  async adminIsIn() { try { return sessionStorage.getItem('scoop-admin') === '1'; } catch (e) { return false; } },
+  async adminSignOut() { try { sessionStorage.removeItem('scoop-admin'); } catch (e) {} },
+  async adminName() { return 'Admin'; }
+};
+const onDBReady = fn => { fn(); window.addEventListener('db-ready', fn); };
+
+// ---- Contact form: messages go to the admin dashboard ----
 const form = document.querySelector('.contact-scoop');
 const msg = form.querySelector('.form-msg');
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
   let ok = true;
   form.querySelectorAll('input, textarea').forEach(field => {
@@ -144,17 +198,20 @@ form.addEventListener('submit', e => {
     msg.className = 'form-msg err';
     return;
   }
-  const inbox = store.get('scoop-messages', []);
-  inbox.unshift({
-    name: form.elements.name.value.trim(),
-    email: form.elements.email.value.trim(),
-    message: form.elements.message.value.trim(),
-    date: new Date().toISOString()
-  });
-  store.set('scoop-messages', inbox.slice(0, 200));
-  msg.textContent = "Thank you — we'll be in touch soon.";
-  msg.className = 'form-msg ok';
-  form.reset();
+  const btn = form.querySelector('button[type=submit]'); btn.disabled = true;
+  try {
+    await window.DB.addMessage({
+      name: form.elements.name.value.trim().slice(0, 99),
+      email: form.elements.email.value.trim().slice(0, 199),
+      message: form.elements.message.value.trim().slice(0, 2999)
+    });
+    msg.textContent = "Thank you — we'll be in touch soon.";
+    msg.className = 'form-msg ok';
+    form.reset();
+  } catch (err) {
+    msg.textContent = 'Sorry, the message could not be sent. Please try again.';
+    msg.className = 'form-msg err';
+  } finally { btn.disabled = false; }
 });
 
 document.getElementById('year').textContent = new Date().getFullYear();
@@ -258,9 +315,8 @@ document.getElementById('year').textContent = new Date().getFullYear();
 })();
 
 // =====================================================================
-// Customer login (front-end preview only: nothing is sent to a server,
-// and passwords are never stored. Name, email and stamp count are kept
-// in this browser so the scoop card can be shown.)
+// Customer login (Members board). With Firebase: real accounts.
+// Without it: demo mode, kept in this browser only.
 // =====================================================================
 (function customerLogin() {
   const form = document.querySelector('.login-card');
@@ -270,13 +326,9 @@ document.getElementById('year').textContent = new Date().getFullYear();
   const nameField = form.querySelector('.name-field');
   const submit = form.querySelector('.login-submit');
   const tabs = form.querySelectorAll('.tab');
-  const KEY = 'scoop-member';
+  const note = form.querySelector('.demo-note');
   const colors = ['#f49ab3', '#9fdcc6', '#ffd36e', '#c9b3f2', '#f2dfb8', '#ff9a7a', '#6b4430', '#a9dde0', '#f49ab3', '#9fdcc6'];
   let mode = 'signin';
-
-  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } };
-  const save = m => { try { localStorage.setItem(KEY, JSON.stringify(m)); } catch (e) {} };
-  const clear = () => { try { localStorage.removeItem(KEY); } catch (e) {} };
 
   function setMode(m) {
     mode = m;
@@ -305,7 +357,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   }
   function showForm() { card.hidden = true; form.hidden = false; form.reset(); setMode('signin'); }
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const fields = [...form.querySelectorAll('input')].filter(f => !f.closest('[hidden]'));
     let ok = true;
@@ -315,39 +367,37 @@ document.getElementById('year').textContent = new Date().getFullYear();
       if (bad) ok = false;
     });
     if (!ok) { msg.textContent = 'Please check your details (password needs 6+ characters).'; msg.className = 'form-msg err'; return; }
-    const email = form.elements.email.value.trim();
-    const saved = load();
-    const member = (saved && saved.email === email)
-      ? { ...saved, stamps: Math.min(10, saved.stamps + 1) }
-      : { name: (form.elements.name.value.trim() || email.split('@')[0]), email, stamps: 1 };
-    save(member);
-    const list = store.get('scoop-members', []).filter(m => m.email !== member.email);
-    list.unshift({ ...member, last: new Date().toISOString() });
-    store.set('scoop-members', list.slice(0, 500));
-    showCard(member);
+    submit.disabled = true; msg.textContent = '';
+    try {
+      const member = await window.DB.memberSignIn(mode, form.elements.name.value.trim(), form.elements.email.value.trim(), form.elements.password.value);
+      showCard(member);
+    } catch (err) {
+      msg.textContent = err.message || 'Sign-in failed. Please try again.'; msg.className = 'form-msg err';
+    } finally { submit.disabled = false; }
   });
 
-  card.querySelector('.signout').addEventListener('click', () => { clear(); showForm(); });
+  card.querySelector('.signout').addEventListener('click', async () => { await window.DB.memberSignOut(); showForm(); });
 
-  const existing = load();
-  if (existing) showCard(existing);
+  onDBReady(async () => {
+    if (note) note.textContent = window.DB.remote
+      ? 'Your account is stored securely. Passwords are never visible to us.'
+      : "Preview only: sign-ins aren't connected to a real account system yet.";
+    const m = await window.DB.memberCurrent().catch(() => null);
+    if (m) showCard(m); else if (!card.hidden) showForm();
+  });
 })();
 
 // =====================================================================
-// Admin dashboard
-// Demo login (checked in the browser, so NOT secure for real use):
-//   email: admin@scoopandswirl.com   password: Swirl@2026
-// Only a SHA-256 hash of "email:password" is kept in this file.
-// Edits are saved in this browser (localStorage). A real, shared admin
-// needs a backend such as Firebase or Supabase.
+// Admin dashboard (STAFF ONLY sign)
+// With Firebase: secure sign-in, and edits are shared with every visitor.
+// Without it: demo login, edits saved in this browser only.
 // =====================================================================
 (function adminDashboard() {
   const form = document.querySelector('.admin-form');
   const dash = document.querySelector('.admin-dash');
   if (!form || !dash) return;
-  const ADMIN_HASH = '6a0ed9f0b881f4d045aa66d01bcf9d9ad38716f2af29fa9dc6bff79ba00a38c9';
   const msg = form.querySelector('.form-msg');
-  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fmt = iso => { try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } };
 
   // ---------- the live menu + hours on the website ----------
@@ -358,9 +408,11 @@ document.getElementById('year').textContent = new Date().getFullYear();
     price: c.querySelector('.price').textContent.replace('$', ''),
     show: true
   }));
+  let menu = original;
   function applyMenu(list) {
+    menu = list && list.length === cards.length ? list : original;
     cards.forEach((c, i) => {
-      const f = list[i] || original[i];
+      const f = menu[i];
       c.querySelector('.scoop-name').textContent = f.name;
       c.querySelector('.scoop-info').textContent = f.info;
       c.querySelector('.price').textContent = '$' + Number(f.price || 0).toFixed(2);
@@ -369,126 +421,128 @@ document.getElementById('year').textContent = new Date().getFullYear();
   }
   const hoursDl = document.querySelector('.visit .hours dl');
   const hoursOriginal = hoursDl ? [...hoursDl.querySelectorAll('dt')].map(dt => ({ day: dt.textContent, time: dt.nextElementSibling.textContent })) : [];
+  let hours = hoursOriginal;
   function applyHours(list) {
-    if (!hoursDl) return;
-    hoursDl.innerHTML = list.map(h => `<dt>${esc(h.day)}</dt><dd>${esc(h.time)}</dd>`).join('');
+    hours = list && list.length ? list : hoursOriginal;
+    if (hoursDl) hoursDl.innerHTML = hours.map(h => `<dt>${esc(h.day)}</dt><dd>${esc(h.time)}</dd>`).join('');
   }
-  // show saved changes to every visitor of this browser
-  applyMenu(store.get('scoop-menu', original));
-  applyHours(store.get('scoop-hours', hoursOriginal));
+  async function loadPublic() {
+    applyMenu(await window.DB.getMenu().catch(() => null));
+    applyHours(await window.DB.getHours().catch(() => null));
+  }
 
   // ---------- sign in ----------
-  async function sha256(text) {
-    if (!(window.crypto && crypto.subtle)) return null;
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-  const isIn = () => { try { return sessionStorage.getItem('scoop-admin') === '1'; } catch (e) { return false; } };
-  const setIn = on => { try { on ? sessionStorage.setItem('scoop-admin', '1') : sessionStorage.removeItem('scoop-admin'); } catch (e) {} };
-
+  const note = form.querySelector('.demo-note');
   form.addEventListener('submit', async e => {
     e.preventDefault();
-    const email = form.elements.email.value.trim().toLowerCase();
-    const pass = form.elements.password.value;
-    const h = await sha256(email + ':' + pass);
-    if (h === null) { msg.textContent = 'Please open the site over https to sign in.'; msg.className = 'form-msg err'; return; }
-    if (h !== ADMIN_HASH) {
-      form.elements.password.classList.add('is-invalid');
-      msg.textContent = 'Wrong email or password.'; msg.className = 'form-msg err';
-      return;
-    }
-    setIn(true); form.reset(); msg.textContent = ''; showDash();
+    const btn = form.querySelector('button[type=submit]'); btn.disabled = true; msg.textContent = '';
+    try {
+      const ok = await window.DB.adminSignIn(form.elements.email.value.trim(), form.elements.password.value);
+      if (!ok) { form.elements.password.classList.add('is-invalid'); msg.textContent = 'Wrong email or password.'; msg.className = 'form-msg err'; return; }
+      form.reset(); showDash();
+    } catch (err) {
+      msg.textContent = err.message || 'Sign-in failed.'; msg.className = 'form-msg err';
+    } finally { btn.disabled = false; }
   });
-  dash.querySelector('.admin-signout').addEventListener('click', () => { setIn(false); dash.hidden = true; form.hidden = false; });
+  dash.querySelector('.admin-signout').addEventListener('click', async () => { await window.DB.adminSignOut(); dash.hidden = true; form.hidden = false; });
 
   // ---------- dashboard ----------
   const tabs = dash.querySelectorAll('.dash-tabs .tab');
   const panes = dash.querySelectorAll('.dash-pane');
+  const paneMsg = name => dash.querySelector(`[data-pane=${name}] .dash-msg`);
   function showTab(name) {
     tabs.forEach(t => { const on = t.dataset.tab === name; t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); });
     panes.forEach(p => { p.hidden = p.dataset.pane !== name; });
     ({ overview: renderOverview, menu: renderMenu, hours: renderHours, messages: renderMessages, members: renderMembers })[name]();
   }
   tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+  async function showDash() {
+    form.hidden = true; dash.hidden = false;
+    dash.querySelector('.admin-name').textContent = await window.DB.adminName();
+    dash.querySelector('.demo-note').textContent = window.DB.remote
+      ? '✓ Connected to Firebase: changes are live for every visitor.'
+      : 'Demo mode: changes are saved in this browser only.';
+    showTab('overview');
+  }
 
-  function showDash() { form.hidden = true; dash.hidden = false; showTab('overview'); }
-
-  function renderOverview() {
-    const menu = store.get('scoop-menu', original);
+  async function renderOverview() {
     dash.querySelector('[data-stat=flavors]').textContent = menu.filter(f => f.show).length;
-    dash.querySelector('[data-stat=messages]').textContent = store.get('scoop-messages', []).length;
-    dash.querySelector('[data-stat=members]').textContent = store.get('scoop-members', []).length;
     const open = document.querySelector('.open-now');
     dash.querySelector('[data-stat=status]').textContent = open && open.classList.contains('closed') ? 'Closed' : 'Open';
+    dash.querySelector('[data-stat=messages]').textContent = (await window.DB.listMessages().catch(() => [])).length;
+    dash.querySelector('[data-stat=members]').textContent = (await window.DB.listMembers().catch(() => [])).length;
   }
 
   const menuBox = dash.querySelector('.menu-editor');
   function renderMenu() {
-    const menu = store.get('scoop-menu', original);
     menuBox.innerHTML = menu.map((f, i) => `
       <div class="edit-row" data-i="${i}">
-        <input type="text" name="name" value="${esc(f.name)}" aria-label="Flavor name">
-        <input type="text" name="info" value="${esc(f.info)}" aria-label="Description">
+        <input type="text" name="name" value="${esc(f.name)}" aria-label="Flavor name" maxlength="60">
+        <input type="text" name="info" value="${esc(f.info)}" aria-label="Description" maxlength="200">
         <input type="number" name="price" value="${esc(f.price)}" min="0" step="0.25" aria-label="Price in dollars">
         <label class="show"><input type="checkbox" name="show" ${f.show ? 'checked' : ''}> On menu</label>
       </div>`).join('');
   }
-  const paneMsg = name => dash.querySelector(`[data-pane=${name}] .dash-msg`);
-  dash.querySelector('[data-act=save-menu]').addEventListener('click', () => {
+  dash.querySelector('[data-act=save-menu]').addEventListener('click', async () => {
     const list = [...menuBox.querySelectorAll('.edit-row')].map(r => ({
       name: r.querySelector('[name=name]').value.trim() || 'Untitled flavor',
       info: r.querySelector('[name=info]').value.trim(),
       price: r.querySelector('[name=price]').value || '0',
       show: r.querySelector('[name=show]').checked
     }));
-    store.set('scoop-menu', list); applyMenu(list);
-    paneMsg('menu').textContent = '✓ Menu saved. Open the Menu page to see it.';
+    try { await window.DB.saveMenu(list); applyMenu(list); paneMsg('menu').textContent = '✓ Menu saved. Open the Menu page to see it.'; }
+    catch (e) { paneMsg('menu').textContent = 'Could not save: ' + e.message; }
   });
-  dash.querySelector('[data-act=reset-menu]').addEventListener('click', () => {
-    store.del('scoop-menu'); applyMenu(original); renderMenu();
-    paneMsg('menu').textContent = 'Menu reset to the original flavors.';
+  dash.querySelector('[data-act=reset-menu]').addEventListener('click', async () => {
+    try { await window.DB.resetMenu(); applyMenu(null); renderMenu(); paneMsg('menu').textContent = 'Menu reset to the original flavors.'; }
+    catch (e) { paneMsg('menu').textContent = 'Could not reset: ' + e.message; }
   });
 
   const hoursBox = dash.querySelector('.hours-editor');
   function renderHours() {
-    hoursBox.innerHTML = store.get('scoop-hours', hoursOriginal).map(h => `
+    hoursBox.innerHTML = hours.map(h => `
       <div class="edit-row">
-        <input type="text" name="day" value="${esc(h.day)}" aria-label="Days">
-        <input type="text" name="time" value="${esc(h.time)}" aria-label="Opening time">
+        <input type="text" name="day" value="${esc(h.day)}" aria-label="Days" maxlength="40">
+        <input type="text" name="time" value="${esc(h.time)}" aria-label="Opening time" maxlength="40">
       </div>`).join('');
   }
-  dash.querySelector('[data-act=save-hours]').addEventListener('click', () => {
+  dash.querySelector('[data-act=save-hours]').addEventListener('click', async () => {
     const list = [...hoursBox.querySelectorAll('.edit-row')].map(r => ({
       day: r.querySelector('[name=day]').value.trim(), time: r.querySelector('[name=time]').value.trim()
     })).filter(h => h.day);
-    store.set('scoop-hours', list); applyHours(list);
-    paneMsg('hours').textContent = '✓ Hours saved. Open Find Us to see them.';
+    try { await window.DB.saveHours(list); applyHours(list); paneMsg('hours').textContent = '✓ Hours saved. Open Find Us to see them.'; }
+    catch (e) { paneMsg('hours').textContent = 'Could not save: ' + e.message; }
   });
-  dash.querySelector('[data-act=reset-hours]').addEventListener('click', () => {
-    store.del('scoop-hours'); applyHours(hoursOriginal); renderHours();
-    paneMsg('hours').textContent = 'Hours reset to the original times.';
+  dash.querySelector('[data-act=reset-hours]').addEventListener('click', async () => {
+    try { await window.DB.resetHours(); applyHours(null); renderHours(); paneMsg('hours').textContent = 'Hours reset to the original times.'; }
+    catch (e) { paneMsg('hours').textContent = 'Could not reset: ' + e.message; }
   });
 
   const msgBox = dash.querySelector('.msg-list');
-  function renderMessages() {
-    const inbox = store.get('scoop-messages', []);
-    msgBox.innerHTML = inbox.length ? inbox.map((m, i) => `
+  async function renderMessages() {
+    msgBox.innerHTML = '<p class="empty">Loading…</p>';
+    const inbox = await window.DB.listMessages().catch(e => { msgBox.innerHTML = `<p class="empty">Could not load messages: ${esc(e.message)}</p>`; return null; });
+    if (!inbox) return;
+    msgBox.innerHTML = inbox.length ? inbox.map(m => `
       <article class="msg-item">
         <header><b>${esc(m.name)}</b><small>${esc(fmt(m.date))}</small></header>
         <small><a href="mailto:${esc(m.email)}">${esc(m.email)}</a></small>
         <p>${esc(m.message)}</p>
-        <button type="button" class="dash-ghost" data-del="${i}">Delete</button>
+        <button type="button" class="dash-ghost" data-del="${esc(m.id)}">Delete</button>
       </article>`).join('') : '<p class="empty">No messages yet. They appear here when someone uses the form on the Find Us page.</p>';
   }
-  msgBox.addEventListener('click', e => {
+  msgBox.addEventListener('click', async e => {
     const b = e.target.closest('[data-del]'); if (!b) return;
-    const inbox = store.get('scoop-messages', []); inbox.splice(Number(b.dataset.del), 1);
-    store.set('scoop-messages', inbox); renderMessages();
+    b.disabled = true;
+    await window.DB.deleteMessage(b.dataset.del).catch(() => {});
+    renderMessages();
   });
 
   const memBox = dash.querySelector('.member-list');
-  function renderMembers() {
-    const list = store.get('scoop-members', []);
+  async function renderMembers() {
+    memBox.innerHTML = '<p class="empty">Loading…</p>';
+    const list = await window.DB.listMembers().catch(e => { memBox.innerHTML = `<p class="empty">Could not load members: ${esc(e.message)}</p>`; return null; });
+    if (!list) return;
     memBox.innerHTML = list.length ? list.map(m => `
       <article class="mem-item">
         <header><b>${esc(m.name)}</b><small>${esc(m.stamps)} / 10 stamps</small></header>
@@ -496,7 +550,14 @@ document.getElementById('year').textContent = new Date().getFullYear();
       </article>`).join('') : '<p class="empty">No members yet. They appear here when customers sign in at the Members board.</p>';
   }
 
-  if (isIn()) showDash();
+  onDBReady(async () => {
+    if (note) note.textContent = window.DB.remote
+      ? 'Staff only. Secure sign-in.'
+      : 'Staff only. Demo login: works in this browser, not a secure server login yet.';
+    await loadPublic();
+    if (await window.DB.adminIsIn().catch(() => false)) showDash();
+    else if (!dash.hidden) { dash.hidden = true; form.hidden = false; }
+  });
 })();
 
 // ---- phones: start the swipeable scene centred on the serving window ----

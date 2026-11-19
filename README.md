@@ -6,6 +6,6 @@ Interactive website for an oceanfront ice cream shop: a shipping-container shop 
 - "Paint the shop" changes the container colour.
 - Plain HTML, CSS and JavaScript. No build step.
 
-Note: the customer login, staff login and message form are front-end previews. They don't save or send anything yet.
+Backend: Firebase (Auth + Firestore). See [FIREBASE_SETUP.md](FIREBASE_SETUP.md). Until it's configured, logins and messages run in demo mode in each visitor's browser.
 
 Photos: [Unsplash](https://unsplash.com).

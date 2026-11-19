@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Security rules for Scoop & Swirl.
+// Paste this into Firebase console > Firestore Database > Rules > Publish.
+// Change the admin email below if you use a different admin account
+// (it must match SCOOP_ADMIN_EMAIL in firebase-config.js).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'admin@scoopandswirl.com';
+    }
+    function signedIn(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Menu and hours: everyone can read, only the admin can change.
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin() && docId in ['menu', 'hours'];
+    }
+
+    // Contact messages: anyone can send one, only the admin can read or delete.
+    match /messages/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'email', 'message', 'date'])
+        && request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() < 100
+        && request.resource.data.email is string && request.resource.data.email.size() < 200
+        && request.resource.data.message is string && request.resource.data.message.size() > 0 && request.resource.data.message.size() < 3000
+        && request.resource.data.date == request.time;
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // Members: each customer manages their own card; the admin can see all.
+    // Stamps can only go up by one per sign-in, to a maximum of 10.
+    match /members/{uid} {
+      allow read: if isAdmin() || signedIn(uid);
+      allow create: if signedIn(uid) && request.resource.data.stamps == 1;
+      allow update: if signedIn(uid)
+        && request.resource.data.stamps is int
+        && request.resource.data.stamps >= resource.data.stamps
+        && request.resource.data.stamps <= resource.data.stamps + 1
+        && request.resource.data.stamps <= 10;
+      allow delete: if isAdmin();
+    }
+  }
+}
