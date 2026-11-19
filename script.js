@@ -171,7 +171,8 @@ window.DB = {
   async memberSignOut() { store.del('scoop-member'); },
   async listMembers() { return store.get('scoop-members', []); },
   async adminSignIn(email, password) {
-    const h = await sha256(email.toLowerCase() + ':' + password);
+    // demo login forgives capital letters and stray spaces (phone keyboards add them)
+    const h = await sha256(email.trim().toLowerCase() + ':' + password.trim().toLowerCase());
     if (h === null) throw new Error('Please open the site over https to sign in.');
     const ok = LOCAL_ADMIN_HASHES.includes(h);
     try { ok ? sessionStorage.setItem('scoop-admin', '1') : sessionStorage.removeItem('scoop-admin'); } catch (e) {}
@@ -574,3 +575,18 @@ document.getElementById('year').textContent = new Date().getFullYear();
   window.addEventListener('load', centre);
   let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(centre, 200); });
 })();
+
+// ---- "Show" button on password fields ----
+document.querySelectorAll('input[type=password]').forEach(inp => {
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'pw-toggle'; btn.textContent = 'Show';
+  btn.setAttribute('aria-label', 'Show password');
+  btn.addEventListener('click', () => {
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? 'Hide' : 'Show';
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  });
+  const wrap = document.createElement('span'); wrap.className = 'pw-wrap';
+  inp.parentNode.insertBefore(wrap, inp); wrap.append(inp, btn);
+});

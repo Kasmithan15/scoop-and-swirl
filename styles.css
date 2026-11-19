@@ -815,3 +815,14 @@ body.panel-open .nav { transition-delay: .35s; }
 }
 
 @media (max-width: 760px) { .hero .paint { margin: 10px auto 0; } }
+
+/* show / hide password */
+.pw-wrap { position: relative; display: block; }
+.pw-wrap input { width: 100%; padding-right: 70px; }
+.pw-toggle {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font: 500 .66rem var(--font-sans); text-transform: uppercase; letter-spacing: .14em;
+  color: var(--brass-soft); background: transparent; border: 1px solid var(--line);
+  border-radius: 999px; padding: 6px 10px; cursor: pointer;
+}
+.pw-toggle:hover { border-color: var(--brass); }
