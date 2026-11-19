@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scoop & Swirl</title>
+  <meta name="description" content="Luxury small-batch ice cream, served from our container shop on the boardwalk.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Yellowtail&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header class="nav">
+    <a href="#top" class="logo">
+      <span class="logo-scoop" aria-hidden="true"></span>
+      Scoop&nbsp;&amp;&nbsp;Swirl
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="panel-close" aria-label="Back to the shop">✕ <span>Back to the shop</span></button>
+    <nav class="nav-links">
+      <a href="#menu">Menu</a>
+      <a href="#story">Our Story</a>
+      <a href="#visit">Find Us &amp; Contact</a>
+      <a href="#login" class="nav-login">Login</a>
+    </nav>
+  </header>
+
+  <!-- ===== HERO: sunset beach + container shop ===== -->
+  <section class="hero" id="top">
+    <div class="stars" aria-hidden="true"></div>
+    <svg class="lights" aria-hidden="true"></svg>
+
+    <div class="shop-stage">
+      <svg class="shop" data-paint="teal" viewBox="-200 -130 1300 752" role="img" aria-labelledby="shop-title">
+        <title id="shop-title">Shipping container ice cream shop on a beach boardwalk at sunset. Tap the window for the menu, the door for contact, the rooftop sign for our story, the signpost to find us.</title>
+        <defs>
+          <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" style="stop-color:var(--c-hi)"/>
+            <stop offset=".2" style="stop-color:var(--c-mid)"/>
+            <stop offset=".75" style="stop-color:var(--c-mid)"/>
+            <stop offset="1" style="stop-color:var(--c-lo)"/>
+          </linearGradient>
+          <!-- corrugated steel: each rib lit from the right like the low sun -->
+          <linearGradient id="ribGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#000" stop-opacity=".30"/>
+            <stop offset=".18" stop-color="#000" stop-opacity=".10"/>
+            <stop offset=".42" stop-color="#fff" stop-opacity=".05"/>
+            <stop offset=".62" stop-color="#fff" stop-opacity=".26"/>
+            <stop offset=".78" stop-color="#fff" stop-opacity=".10"/>
+            <stop offset="1" stop-color="#000" stop-opacity=".22"/>
+          </linearGradient>
+          <pattern id="ribs" width="22" height="10" patternUnits="userSpaceOnUse">
+            <rect width="22" height="10" fill="url(#ribGrad)"/>
+          </pattern>
+          <linearGradient id="grime" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff" stop-opacity=".10"/>
+            <stop offset=".12" stop-color="#fff" stop-opacity="0"/>
+            <stop offset=".7" stop-color="#3b2a1a" stop-opacity="0"/>
+            <stop offset="1" stop-color="#3b2a1a" stop-opacity=".38"/>
+          </linearGradient>
+          <linearGradient id="castShadow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#000" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#000" stop-opacity=".1"/>
+          </linearGradient>
+          <linearGradient id="warmLight" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffdca0" stop-opacity=".35"/>
+            <stop offset=".5" stop-color="#ffdca0" stop-opacity="0"/>
+            <stop offset="1" stop-color="#2a1a0c" stop-opacity=".25"/>
+          </linearGradient>
+          <linearGradient id="wetSand" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#6d5a40" stop-opacity=".45"/>
+            <stop offset="1" stop-color="#6d5a40" stop-opacity="0"/>
+          </linearGradient>
+          <filter id="metalGrain" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9 0.012" numOctaves="2" seed="4"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .6 -.22"/>
+          </filter>
+          <filter id="sandGrain" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" seed="9"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 .42  0 0 0 0 .31  0 0 0 0 .18  0 0 0 1.5 -.62"/>
+          </filter>
+          <filter id="sandRipple" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.004 0.06" numOctaves="2" seed="21"/>
+            <feColorMatrix type="matrix" values="0 0 0 0 .55  0 0 0 0 .42  0 0 0 0 .26  0 0 0 1.2 -.55"/>
+          </filter>
+          <filter id="woodH" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.008 0.35" numOctaves="3" seed="11" result="t"/>
+            <feColorMatrix in="t" type="matrix" values="0 0 0 0 .26  0 0 0 0 .15  0 0 0 0 .07  0 0 0 1.1 -.35" result="g"/>
+            <feComposite in="g" in2="SourceGraphic" operator="in" result="gi"/>
+            <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gi"/></feMerge>
+          </filter>
+          <filter id="woodV" color-interpolation-filters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.35 0.008" numOctaves="3" seed="13" result="t"/>
+            <feColorMatrix in="t" type="matrix" values="0 0 0 0 .26  0 0 0 0 .15  0 0 0 0 .07  0 0 0 1.1 -.35" result="g"/>
+            <feComposite in="g" in2="SourceGraphic" operator="in" result="gi"/>
+            <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gi"/></feMerge>
+          </filter>
+          <filter id="softBlur"><feGaussianBlur stdDeviation=".6"/></filter>
+          <filter id="shadowBlur" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+          <!-- drawn sunset sun -->
+          <radialGradient id="sunDisc" cx=".5" cy=".45" r=".55">
+            <stop offset="0" stop-color="#fffbea"/>
+            <stop offset=".55" stop-color="#ffeab0"/>
+            <stop offset=".85" stop-color="#ffc56e"/>
+            <stop offset="1" stop-color="#ffab55"/>
+          </radialGradient>
+          <radialGradient id="sunGlow" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="#fff2c4" stop-opacity=".9"/>
+            <stop offset=".35" stop-color="#ffd08a" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#ff9a5a" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="sunHalo" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="#ffcf8a" stop-opacity=".55"/>
+            <stop offset=".5" stop-color="#ff9e62" stop-opacity=".18"/>
+            <stop offset="1" stop-color="#ff8a55" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="sunPath" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffd896" stop-opacity=".75"/>
+            <stop offset="1" stop-color="#ffd896" stop-opacity="0"/>
+          </linearGradient>
+          <clipPath id="aboveHorizon"><rect x="800" y="0" width="500" height="245"/></clipPath>
+          <clipPath id="doorClip"><rect x="622" y="188" width="128" height="240" rx="4"/></clipPath>
+          <linearGradient id="edgeShade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#000" stop-opacity=".3"/>
+            <stop offset=".08" stop-color="#000" stop-opacity="0"/>
+            <stop offset=".85" stop-color="#ffcf9a" stop-opacity="0"/>
+            <stop offset="1" stop-color="#ffcf9a" stop-opacity=".22"/>
+          </linearGradient>
+          <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#7fb2c4"/>
+            <stop offset=".5" stop-color="#2b5566"/>
+            <stop offset="1" stop-color="#132c37"/>
+          </linearGradient>
+          <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset=".45" stop-color="#d3d7dc"/>
+            <stop offset=".55" stop-color="#8b9198"/>
+            <stop offset="1" stop-color="#eceff2"/>
+          </linearGradient>
+          <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f6e4b0"/>
+            <stop offset=".5" stop-color="#c8a464"/>
+            <stop offset="1" stop-color="#86672f"/>
+          </linearGradient>
+          <linearGradient id="inside" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#fff6e4"/>
+            <stop offset="1" stop-color="#f6d2a2"/>
+          </linearGradient>
+          <linearGradient id="woodUnder" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a8723f"/>
+            <stop offset="1" stop-color="#e0b07a"/>
+          </linearGradient>
+          <pattern id="planks" width="60" height="13" patternUnits="userSpaceOnUse">
+            <rect width="60" height="13" fill="#b9824f"/>
+            <rect y="11" width="60" height="2" fill="#7d5130"/>
+            <rect x="58" width="2" height="13" fill="#8e6038"/>
+          </pattern>
+          <linearGradient id="sky-glow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f6b98c" stop-opacity="0"/>
+            <stop offset="1" stop-color="#ffd2a1"/>
+          </linearGradient>
+          <radialGradient id="sun" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="#fff6d8"/>
+            <stop offset=".55" stop-color="#ffd08a"/>
+            <stop offset=".8" stop-color="#ffa86a" stop-opacity=".7"/>
+            <stop offset="1" stop-color="#ff8f5a" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#5b9fb3"/>
+            <stop offset=".35" stop-color="#2a7590"/>
+            <stop offset="1" stop-color="#145a72"/>
+          </linearGradient>
+          <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f2ddb6"/>
+            <stop offset=".06" stop-color="#e6cb9b"/>
+            <stop offset="1" stop-color="#c9a571"/>
+          </linearGradient>
+          <pattern id="wavePat" width="120" height="16" patternUnits="userSpaceOnUse">
+            <path d="M0,10 Q30,3 60,10 T120,10" fill="none" stroke="#fff" stroke-width="2" opacity=".5"/>
+          </pattern>
+          <pattern id="foamPat" width="64" height="16" patternUnits="userSpaceOnUse">
+            <path d="M0,9 Q16,1 32,9 T64,9 V16 H0 Z" fill="#fffaf0" opacity=".85"/>
+          </pattern>
+          <radialGradient id="shadow" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="#000" stop-opacity=".55"/>
+            <stop offset="1" stop-color="#000" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="scoopVanilla" cx=".35" cy=".3" r=".75">
+            <stop offset="0" stop-color="#fffbf2"/><stop offset=".6" stop-color="#f2dfb8"/><stop offset="1" stop-color="#c3a06b"/>
+          </radialGradient>
+          <radialGradient id="scoopMint" cx=".35" cy=".3" r=".75">
+            <stop offset="0" stop-color="#effff8"/><stop offset=".6" stop-color="#9fdcc6"/><stop offset="1" stop-color="#4c9a82"/>
+          </radialGradient>
+          <radialGradient id="cherry" cx=".35" cy=".3" r=".7">
+            <stop offset="0" stop-color="#ff9a9a"/><stop offset=".5" stop-color="#d7263d"/><stop offset="1" stop-color="#6e0d1a"/>
+          </radialGradient>
+          <linearGradient id="coneShade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/>
+          </linearGradient>
+          <pattern id="waffle" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="12" height="12" fill="#e2a85c"/>
+            <path d="M0,0 V12 M0,0 H12" stroke="#a8702f" stroke-width="2.5"/>
+          </pattern>
+        </defs>
+
+        <!-- ---------- the beach (static) ---------- -->
+        <g class="scene">
+          <!-- real sunset photo: sky, sun and sea (horizon lined up at y=250) -->
+          <image class="sky-photo" href="assets/img/sunset-sea-clean.jpg" x="0" y="-436" width="2000" height="1333" preserveAspectRatio="xMidYMid slice"/>
+          <image class="sky-photo" href="assets/img/sunset-sea-clean.jpg" x="0" y="-436" width="2000" height="1333" preserveAspectRatio="xMidYMid slice" transform="matrix(-1 0 0 1 2 0)"/>
+
+          <!-- the setting sun: soft halo, glowing disc dipping into the horizon, golden path on the water -->
+          <g class="sunset">
+            <circle class="sun-halo" cx="1005" cy="60" r="300" fill="url(#sunHalo)"/>
+            <circle class="sun-glow" cx="1005" cy="60" r="115" fill="url(#sunGlow)"/>
+            <g class="sun-disc">
+              <circle cx="1005" cy="60" r="42" fill="url(#sunDisc)"/>
+              <rect x="958" y="68" width="94" height="2" fill="#ff9e5e" opacity=".22"/>
+              <rect x="964" y="80" width="82" height="2" fill="#ff9e5e" opacity=".18"/>
+            </g>
+          </g>
+          <rect x="-2000" y="396" width="4900" height="2000" fill="url(#sand)"/>
+          <rect x="-700" y="396" width="2300" height="700" fill="#fff" filter="url(#sandRipple)" opacity=".55"/>
+          <rect x="-700" y="396" width="2300" height="700" fill="#fff" filter="url(#sandGrain)" opacity=".7"/>
+          <rect x="-2000" y="396" width="4900" height="26" fill="url(#wetSand)"/>
+          <rect class="foam" x="-2000" y="386" width="4900" height="16" fill="url(#foamPat)"/>
+
+          <!-- palm silhouettes -->
+          <g filter="url(#softBlur)"><g class="palm"><image href="assets/img/palm-left.png" x="-305" y="45" width="292" height="400" preserveAspectRatio="xMidYMax meet"/></g></g>
+          <g filter="url(#softBlur)"><g class="palm palm-r"><image href="assets/img/palm-right.png" x="930" y="15" width="272" height="430" preserveAspectRatio="xMidYMax meet"/></g></g>
+
+          <!-- boardwalk deck -->
+          <ellipse cx="450" cy="474" rx="650" ry="22" fill="url(#shadow)"/>
+          <g fill="#6e4a2c">
+            <rect x="-120" y="462" width="14" height="40"/><rect x="150" y="462" width="14" height="40"/>
+            <rect x="440" y="462" width="14" height="40"/><rect x="730" y="462" width="14" height="40"/>
+            <rect x="1000" y="462" width="14" height="40"/>
+          </g>
+          <rect x="-150" y="440" width="1200" height="26" rx="4" fill="url(#planks)" filter="url(#woodH)"/>
+          <rect x="-150" y="440" width="1200" height="3" rx="1.5" fill="#e6b483" opacity=".7"/>
+          <polygon class="land-shadow cast" points="-84,443 984,443 900,468 -230,468" fill="url(#castShadow)" filter="url(#shadowBlur)"/>
+          <ellipse class="land-shadow" cx="450" cy="446" rx="550" ry="9" fill="#000" opacity=".4"/>
+        </g>
+
+        <!-- ---------- the container (drops in) ---------- -->
+        <g class="drop">
+          <!-- crane cable -->
+          <g class="cable" stroke="#1d2a30" stroke-width="3" fill="none">
+            <path d="M450,-2000 V60"/>
+            <path d="M450,60 L-68,140 M450,60 L968,140"/>
+            <circle cx="450" cy="66" r="8" fill="#c8a464" stroke="none"/>
+          </g>
+
+          <!-- body -->
+          <rect x="-80" y="150" width="1060" height="290" fill="url(#bodyGrad)"/>
+          <rect x="-80" y="150" width="1060" height="290" fill="url(#ribs)"/>
+          <rect x="-80" y="150" width="1060" height="290" fill="url(#edgeShade)"/>
+          <rect x="-80" y="150" width="1060" height="290" fill="#000" filter="url(#metalGrain)" opacity=".45"/>
+          <rect x="-80" y="150" width="1060" height="290" fill="url(#grime)"/>
+          <rect x="-80" y="150" width="1060" height="290" fill="url(#warmLight)"/>
+
+          <!-- rails, corner posts, castings -->
+          <rect x="-84" y="140" width="1068" height="16" rx="3" style="fill:var(--c-rail)"/>
+          <rect x="-84" y="428" width="1068" height="16" rx="3" style="fill:var(--c-rail)"/>
+          <rect x="-84" y="140" width="16" height="304" style="fill:var(--c-rail)"/>
+          <rect x="968" y="140" width="16" height="304" style="fill:var(--c-rail)"/>
+          <rect x="-84" y="141" width="1068" height="3" fill="#fff" opacity=".35"/>
+          <g fill="#1e252b">
+            <rect x="-87" y="137" width="22" height="22" rx="2"/><rect x="965" y="137" width="22" height="22" rx="2"/>
+            <rect x="-87" y="425" width="22" height="22" rx="2"/><rect x="965" y="425" width="22" height="22" rx="2"/>
+          </g>
+          <g fill="#000"><rect x="-81" y="144" width="10" height="6" rx="2"/><rect x="971" y="144" width="10" height="6" rx="2"/>
+            <rect x="-81" y="432" width="10" height="6" rx="2"/><rect x="971" y="432" width="10" height="6" rx="2"/></g>
+
+          <!-- rooftop string lights -->
+          <g class="bulbs" fill="#fff3cf">
+            <circle cx="-40" cy="148" r="4"/><circle cx="16" cy="148" r="4"/><circle cx="72" cy="148" r="4"/><circle cx="128" cy="148" r="4"/><circle cx="184" cy="148" r="4"/><circle cx="240" cy="148" r="4"/><circle cx="296" cy="148" r="4"/><circle cx="352" cy="148" r="4"/><circle cx="408" cy="148" r="4"/><circle cx="464" cy="148" r="4"/><circle cx="520" cy="148" r="4"/><circle cx="576" cy="148" r="4"/><circle cx="632" cy="148" r="4"/><circle cx="688" cy="148" r="4"/><circle cx="744" cy="148" r="4"/><circle cx="800" cy="148" r="4"/><circle cx="856" cy="148" r="4"/><circle cx="912" cy="148" r="4"/>
+          </g>
+
+          <!-- HOTSPOT: right wall members board -> Customer login -->
+          <a href="#login" class="hotspot members" aria-label="Customer login">
+            <g transform="translate(822,0)">
+            <rect x="-40" y="206" width="176" height="160" rx="12" fill="#16303a" stroke="url(#brass)" stroke-width="4" class="hs-frame"/>
+            <circle cx="48" cy="244" r="15" fill="none" stroke="#f1dcaa" stroke-width="3"/>
+            <path d="M20,290 Q20,266 48,266 Q76,266 76,290" fill="none" stroke="#f1dcaa" stroke-width="3" stroke-linecap="round"/>
+            <text x="48" y="314" text-anchor="middle" class="poster-small">MEMBERS</text>
+            <g class="tag">
+              <rect x="-26" y="326" width="148" height="30" rx="15"/>
+              <text x="48" y="346" text-anchor="middle">CUSTOMER LOGIN ›</text>
+            </g>
+            </g>
+          </a>
+
+          <!-- left wall: arched brass plaque -->
+          <g class="plaque" transform="translate(-812,0)">
+            <path d="M800,370 V250 A60,60 0 0 1 920,250 V370 Z" fill="#16303a" stroke="url(#brass)" stroke-width="4"/>
+            <text x="860" y="262" text-anchor="middle" class="poster-small">OPEN DAILY</text>
+            <text x="860" y="300" text-anchor="middle" class="poster-script small">12 – 9</text>
+            <path d="M826,318 H894" stroke="#c8a464" stroke-width="1.5"/>
+            <text x="860" y="344" text-anchor="middle" class="poster-small">ON THE SAND</text>
+          </g>
+          <rect x="758" y="226" width="12" height="24" rx="4" fill="url(#brass)"/>
+          <circle class="sconce" cx="764" cy="224" r="6" fill="#fff1c4"/>
+
+          <!-- HOTSPOT: serving window -> Menu -->
+          <a href="#menu" class="hotspot" aria-label="Menu">
+            <rect x="170" y="196" width="400" height="170" fill="url(#inside)"/>
+            <!-- real photo of the gelato counter inside -->
+            <image href="assets/img/display-counter.jpg" x="170" y="196" width="400" height="170" preserveAspectRatio="xMidYMid slice"/>
+            <rect x="170" y="196" width="400" height="170" fill="url(#warmLight)"/>
+            <rect x="170" y="196" width="400" height="26" fill="#000" opacity=".25"/>
+            <!-- pendant lights -->
+            <g class="pendants">
+              <path d="M390,196 V222 M450,196 V230 M510,196 V222" stroke="#3a3a3a" stroke-width="1.5"/>
+              <path d="M380,232 Q390,216 400,232 Z M440,240 Q450,224 460,240 Z M500,232 Q510,216 520,232 Z" fill="url(#brass)"/>
+              <g class="pendant-glow" fill="#fff1c4">
+                <circle cx="390" cy="235" r="4"/><circle cx="450" cy="243" r="4"/><circle cx="510" cy="235" r="4"/>
+              </g>
+            </g>
+            <!-- marble counter -->
+            <rect x="158" y="352" width="424" height="16" rx="5" fill="#f4f1ea"/>
+            <path d="M178,358 Q220,354 250,362 T330,358 M400,356 Q440,364 470,358 T560,360" stroke="#b9b4aa" stroke-width="1.2" fill="none"/>
+            <rect x="158" y="366" width="424" height="4" fill="url(#brass)"/>
+            <!-- brass frame -->
+            <rect x="170" y="196" width="400" height="170" fill="none" stroke="url(#brass)" stroke-width="5" class="hs-frame"/>
+            <!-- night-time dim, fades when the shop opens -->
+            <rect class="inside-dim" x="170" y="196" width="400" height="170" fill="#0a1a22"/>
+            <!-- side panel: closed flap, then raised awning -->
+            <g class="flap">
+              <rect x="170" y="196" width="400" height="170" fill="url(#bodyGrad)"/>
+              <rect x="170" y="196" width="400" height="170" fill="url(#ribs)"/>
+              <rect x="170" y="196" width="400" height="170" fill="none" style="stroke:var(--c-lo)" stroke-width="3"/>
+            </g>
+            <g class="awning">
+              <polygon points="170,196 570,196 614,118 126,118" fill="url(#woodUnder)" filter="url(#woodH)"/>
+              <path d="M160,170 H580 M146,144 H594" stroke="#8a5a30" stroke-width="1.5" opacity=".6"/>
+              <rect x="122" y="112" width="496" height="9" rx="4" style="fill:var(--c-mid)"/>
+              <rect x="122" y="112" width="496" height="3" rx="1.5" fill="#fff" opacity=".35"/>
+              <path d="M176,260 L134,120 M564,260 L606,120" stroke="url(#chrome)" stroke-width="3.5" stroke-linecap="round"/>
+            </g>
+            <g class="tag">
+              <rect x="305" y="384" width="130" height="30" rx="15"/>
+              <text x="370" y="404" text-anchor="middle">MENU ›</text>
+            </g>
+          </a>
+
+          <!-- wall sconce -->
+          <rect x="590" y="226" width="12" height="24" rx="4" fill="url(#brass)"/>
+          <circle class="sconce" cx="596" cy="224" r="6" fill="#fff1c4"/>
+
+          <!-- HOTSPOT: glass door -> Contact -->
+          <g class="door">
+            <rect x="622" y="188" width="128" height="240" rx="4" fill="url(#glass)"/>
+            <g clip-path="url(#doorClip)">
+              <image href="assets/img/sunset-sea-clean.jpg" x="520" y="120" width="420" height="320" preserveAspectRatio="xMidYMid slice" opacity=".55" transform="scale(-1,1) translate(-1372,0)"/>
+              <rect x="622" y="188" width="128" height="240" fill="#0d2630" opacity=".35"/>
+            </g>
+            <rect x="622" y="188" width="128" height="240" rx="4" fill="none" stroke="url(#brass)" stroke-width="5"/>
+            <polygon points="632,194 666,194 640,422 630,422" fill="#fff" opacity=".18"/>
+            <polygon points="680,194 694,194 676,422 664,422" fill="#fff" opacity=".1"/>
+            <rect x="634" y="270" width="6" height="80" rx="3" fill="url(#brass)"/>
+          </g>
+
+          <!-- HOTSPOT: STAFF ONLY sign on the door -> Admin login -->
+          <a href="#admin" class="hotspot staff-sign" aria-label="Staff only: admin login">
+            <path d="M672,206 L686,195 L700,206" stroke="#c8a464" stroke-width="1.5" fill="none"/>
+            <rect class="staff-plate" x="642" y="204" width="88" height="28" rx="14" fill="#f6f1e7" stroke="#c8a464" stroke-width="1.2"/>
+            <text x="686" y="222" text-anchor="middle" class="open-sign staff-text">STAFF ONLY</text>
+          </a>
+
+          <!-- rooftop cone sculpture -->
+          <g class="roof-cone">
+            <!-- three real ice cream cones in a wooden display box on the roof -->
+            <image class="real-obj" href="assets/img/cones-trio.png" x="727" y="14" width="180" height="132"/>
+            <rect x="770" y="128" width="120" height="16" rx="3" fill="#8e6038" filter="url(#woodH)"/>
+            <rect x="768" y="126" width="124" height="4" rx="2" fill="url(#brass)"/>
+            <rect x="772" y="127" width="70" height="1.5" fill="#fff" opacity=".5"/>
+          </g>
+
+          <!-- HOTSPOT: rooftop sign -> Our Story -->
+          <a href="#story" class="hotspot" aria-label="Our story">
+            <rect x="250" y="96" width="6" height="16" fill="url(#brass)"/>
+            <rect x="484" y="96" width="6" height="16" fill="url(#brass)"/>
+            <rect x="200" y="42" width="340" height="58" rx="29" fill="#0d2630" stroke="url(#brass)" stroke-width="3" class="hs-frame"/>
+            <text x="370" y="84" text-anchor="middle" class="sign-text">Scoop &amp; Swirl</text>
+            <g class="tag">
+              <rect x="310" y="2" width="120" height="28" rx="14"/>
+              <text x="370" y="21" text-anchor="middle">OUR STORY ›</text>
+            </g>
+          </a>
+        </g>
+
+        <!-- puffs of sand when it lands -->
+        <g class="puffs" fill="#f2ddb6">
+          <circle cx="-70" cy="440" r="14"/><circle cx="-96" cy="432" r="10"/>
+          <circle cx="970" cy="440" r="14"/><circle cx="996" cy="432" r="10"/>
+        </g>
+
+        <!-- planter (in front) -->
+        <g class="planter" transform="translate(196,0)">
+          <path d="M836,382 C826,340 812,320 800,312 C818,326 830,348 840,380 Z" fill="#2f6b4f"/>
+          <path d="M840,382 C842,334 852,306 866,292 C858,316 852,346 846,382 Z" fill="#3c8060"/>
+          <path d="M846,384 C860,350 878,336 894,330 C880,346 866,364 852,386 Z" fill="#2f6b4f"/>
+          <path d="M818,388 H872 L866,440 H824 Z" fill="#f2ede4"/>
+          <rect x="816" y="384" width="58" height="8" rx="4" fill="#fff"/>
+        </g>
+
+        <!-- café table + three chairs in front (decoration) -->
+        <g transform="translate(-290,0)">
+        <g class="lounge" aria-hidden="true">
+          <ellipse cx="420" cy="572" rx="220" ry="14" fill="#000" opacity=".3" filter="url(#shadowBlur)"/>
+
+          <!-- real rattan chair + wooden bistro table (photo cut-outs), toned for sunset light -->
+          <image class="real-obj far" href="assets/img/chair-real.png" x="404" y="446" width="92" height="106"/>
+          <image class="real-obj" href="assets/img/table-real.png" x="348" y="458" width="204" height="114"/>
+          <image class="real-obj" href="assets/img/chair-real.png" x="262" y="442" width="110" height="127"/>
+          <image class="real-obj" href="assets/img/chair-real.png" x="528" y="442" width="110" height="127" transform="matrix(-1 0 0 1 1166 0)"/>
+
+        </g></g>
+
+        <!-- HOTSPOT: beach signpost -> Find us -->
+        <a href="#visit" class="hotspot signpost" aria-label="Find us">
+          <g transform="translate(-206,0)">
+          <rect x="54" y="300" width="9" height="142" rx="2" fill="#8e6038" filter="url(#woodV)"/>
+          <polygon class="sign-board" points="20,318 100,318 116,334 100,350 20,350" filter="url(#woodH)"/>
+          <text x="62" y="339" text-anchor="middle" class="sign-board-text">FIND US</text>
+          </g>
+        </a>
+      </svg>
+
+      <p class="hint">Tap the window, sign, signpost, members board or staff sign to explore</p>
+      <div class="paint" role="group" aria-label="Paint the shop">
+        <span class="paint-label">Paint the shop</span>
+        <button class="swatch" data-paint="teal" aria-label="Ocean teal" aria-pressed="true" style="--sw:#2a8f8f"></button>
+        <button class="swatch" data-paint="ivory" aria-label="Pearl white" aria-pressed="false" style="--sw:#ece6da"></button>
+        <button class="swatch" data-paint="black" aria-label="Matte black" aria-pressed="false" style="--sw:#262626"></button>
+        <button class="swatch" data-paint="navy" aria-label="Navy" aria-pressed="false" style="--sw:#263450"></button>
+        <button class="swatch" data-paint="coral" aria-label="Sunset coral" aria-pressed="false" style="--sw:#e27d60"></button>
+        <button class="swatch" data-paint="sand" aria-label="Sand" aria-pressed="false" style="--sw:#dcc095"></button>
+        <button class="swatch" data-paint="olive" aria-label="Olive green" aria-pressed="false" style="--sw:#6b7a45"></button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===== MENU PANEL ===== -->
+  <section class="panel" id="menu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true" tabindex="-1">
+    <div class="panel-inner">
+  <section class="menu">
+    <h2 class="section-title"><span>Menu</span></h2>
+    <p class="section-sub">Tap a scoop to see what's inside.</p>
+
+    <div class="filter" role="group" aria-label="Filter flavors">
+      <button class="chip is-active" data-filter="all">All</button>
+      <button class="chip" data-filter="classic">Classics</button>
+      <button class="chip" data-filter="fruity">Fruity</button>
+      <button class="chip" data-filter="vegan">Vegan</button>
+    </div>
+
+    <div class="cone-row">
+      <article class="cone-card" data-tags="classic" style="--scoop:#f6e7c8; --scoop-dark:#e3cfa6; --img:url('assets/img/vanilla.jpg');">
+        <button class="scoop" aria-expanded="false">
+          <span class="scoop-name">Vanilla Bean</span>
+          <span class="scoop-info">Madagascar vanilla with a ribbon of wild berry. The one that started it all.</span>
+        </button>
+        <div class="cone"></div>
+        <p class="price">$6.50</p>
+      </article>
+
+      <article class="cone-card" data-tags="classic" style="--scoop:#7b4a32; --scoop-dark:#5e3622; --img:url('assets/img/chocolate.jpg');">
+        <button class="scoop" aria-expanded="false">
+          <span class="scoop-name">Dark Chocolate Sea Salt</span>
+          <span class="scoop-info">70% dark chocolate finished with flaky sea salt from this coast.</span>
+        </button>
+        <div class="cone"></div>
+        <p class="price">$7.00</p>
+      </article>
+
+      <article class="cone-card" data-tags="fruity" style="--scoop:#ff9fb6; --scoop-dark:#f07c98; --img:url('assets/img/strawberry.jpg');">
+        <button class="scoop" aria-expanded="false">
+          <span class="scoop-name">Strawberry Fields</span>
+          <span class="scoop-info">Roasted local strawberries folded into sweet cream.</span>
+        </button>
+        <div class="cone"></div>
+        <p class="price">$6.75</p>
+      </article>
+
+      <article class="cone-card" data-tags="fruity" style="--scoop:#f7c6d2; --scoop-dark:#e9a3b6; --img:url('assets/img/berry-swirl.jpg');">
+        <button class="scoop" aria-expanded="false">
+          <span class="scoop-name">Berry Swirl</span>
+          <span class="scoop-info">Raspberry ripple through vanilla, served in a crisp waffle cone.</span>
+        </button>
+        <div class="cone"></div>
+        <p class="price">$6.75</p>
+      </article>
+
+      <article class="cone-card" data-tags="fruity vegan" style="--scoop:#ffd36e; --scoop-dark:#f4bb3c; --img:url('assets/img/mango.jpg');">
+        <button class="scoop" aria-expanded="false">
+          <span class="scoop-name">Mango Sunset</span>
+          <span class="scoop-info">Alphonso mango sorbet with a squeeze of lime. Dairy-free.</span>
+        </button>
+        <div class="cone"></div>
+        <p class="price">$6.75</p>
+      </article>
+
+      <article class="cone-card" data-tags="vegan" style="--scoop:#eef3f2; --scoop-dark:#cfdcd9; --img:url('assets/img/coconut-beach.jpg');">
+        <button class="scoop" aria-expanded="false">
+          <span class="scoop-name">Coconut Lagoon</span>
+          <span class="scoop-info">Toasted coconut milk, light as a sea breeze. Fully plant-based.</span>
+        </button>
+        <div class="cone"></div>
+        <p class="price">$7.25</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- gallery (inside the menu panel) -->
+  <section class="gallery" aria-label="Photo gallery">
+    <h2 class="section-title"><span>Moments by the Sea</span></h2>
+    <div class="gallery-row">
+      <figure class="g g1"><img src="assets/img/beach-cones.jpg" alt="Three ice cream cones held up against the sea" loading="lazy"></figure>
+      <figure class="g g2"><img src="assets/img/gelato-case.jpg" alt="Gelato display case full of colourful flavours" loading="lazy"></figure>
+      <figure class="g g3"><img src="assets/img/cone-in-hand.jpg" alt="Hand holding a waffle cone piled with gelato" loading="lazy"></figure>
+      <figure class="g g4"><img src="assets/img/citron-gelato.jpg" alt="Swirls of lemon gelato in a display tray" loading="lazy"></figure>
+    </div>
+  </section>
+    </div>
+  </section>
+
+  <!-- ===== STORY PANEL ===== -->
+  <section class="panel" id="story" role="dialog" aria-modal="true" aria-label="Our story" aria-hidden="true" tabindex="-1">
+    <div class="panel-inner">
+  <section class="story">
+    <figure class="story-photo"><img src="assets/img/display-counter.jpg" alt="Our counter with a long glass case of handmade ice cream" loading="lazy"></figure>
+    <div class="story-blob">
+      <h2 class="section-title"><span>Our Story</span></h2>
+      <p>Scoop &amp; Swirl began with a hand-crank churn and a summer that was far too hot. Today we serve from a restored shipping container on the boardwalk, steps from the waves, using milk from a nearby dairy and fruit picked that week.</p>
+      <p>Every batch is small, slow and made by hand. Best enjoyed with sand between your toes.</p>
+      <ul class="badges">
+        <li class="badge">Local<br>dairy</li>
+        <li class="badge">Made<br>daily</li>
+        <li class="badge">Vegan<br>options</li>
+      </ul>
+    </div>
+  </section>
+    </div>
+  </section>
+
+  <!-- ===== FIND US PANEL ===== -->
+  <section class="panel" id="visit" role="dialog" aria-modal="true" aria-label="Find us" aria-hidden="true" tabindex="-1">
+    <div class="panel-inner">
+  <section class="visit">
+    <h2 class="section-title"><span>Find Us</span></h2>
+    <div class="visit-wrap">
+      <div class="visit-blob hours">
+        <h3>Hours</h3>
+        <dl>
+          <dt>Mon – Thu</dt><dd>12pm – 9pm</dd>
+          <dt>Fri – Sat</dt><dd>11am – 11pm</dd>
+          <dt>Sunday</dt><dd>11am – 8pm</dd>
+        </dl>
+        <p class="open-now" aria-live="polite"></p>
+      </div>
+      <div class="visit-blob where">
+        <h3>On the Boardwalk</h3>
+        <p><strong>123 Ocean Drive</strong></p>
+        <p>Beside the lifeguard tower,<br>Your Town, ST 00000</p>
+        <p class="small">Best seats at sunset</p>
+      </div>
+      <div class="visit-blob reach">
+        <h3>Contact</h3>
+        <p><a href="tel:+10000000000" class="reach-link">📞 (000) 000-0000</a></p>
+        <p><a href="mailto:hello@example.com" class="reach-link">✉️ hello@example.com</a></p>
+        <p><a href="#" class="reach-link">📸 @scoopandswirl</a></p>
+        <p class="small">Private events &amp; beach weddings welcome</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact">
+    <h2 class="section-title"><span>Send a Message</span></h2>
+    <p class="section-sub">Questions, events, or just saying hi. We reply within a day.</p>
+    <div class="contact-wrap">
+      <form class="contact-scoop" novalidate>
+        <label>
+          <span>Your name</span>
+          <input type="text" name="name" required autocomplete="name">
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" required autocomplete="email">
+        </label>
+        <label>
+          <span>Message</span>
+          <textarea name="message" rows="4" required></textarea>
+        </label>
+        <button type="submit" class="btn-scoop">Send message</button>
+        <p class="form-msg" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <svg class="footer-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,30 C180,0 360,0 540,24 C720,48 900,48 1080,24 C1260,0 1350,6 1440,18 V60 H0 Z"/>
+    </svg>
+    <p class="footer-logo">Scoop &amp; Swirl</p>
+    <p>&copy; <span id="year"></span> · Oceanfront ice cream, crafted in small batches</p>
+    <p class="credit">Photos from <a href="https://unsplash.com" target="_blank" rel="noopener">Unsplash</a></p>
+  </footer>
+    </div>
+  </section>
+
+  <!-- ===== LOGIN PANEL (members' table) ===== -->
+  <section class="panel" id="login" role="dialog" aria-modal="true" aria-label="Customer login" aria-hidden="true" tabindex="-1">
+    <div class="panel-inner">
+  <section class="login">
+    <h2 class="section-title"><span>Members' Table</span></h2>
+    <p class="section-sub">Sign in to collect scoop stamps. Your 10th scoop is on us.</p>
+
+    <div class="login-wrap">
+      <form class="login-card" novalidate>
+        <div class="tabs" role="tablist" aria-label="Sign in or create an account">
+          <button type="button" class="tab is-active" role="tab" aria-selected="true" data-mode="signin">Sign in</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-mode="signup">Create account</button>
+        </div>
+        <label class="name-field" hidden>
+          <span>Your name</span>
+          <input type="text" name="name" autocomplete="name">
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" required autocomplete="email">
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" required minlength="6" autocomplete="current-password">
+        </label>
+        <button type="submit" class="btn-scoop login-submit">Sign in</button>
+        <p class="form-msg" aria-live="polite"></p>
+        <p class="demo-note">Preview only: sign-ins aren't connected to a real account system yet.</p>
+      </form>
+
+      <div class="member-card" hidden>
+        <p class="hello">Welcome, <span class="member-name"></span></p>
+        <p class="card-label">Your scoop card</p>
+        <ol class="stamps" aria-label="Scoop stamps"></ol>
+        <p class="stamp-note"></p>
+        <button type="button" class="btn-scoop signout">Sign out</button>
+      </div>
+    </div>
+  </section>
+    </div>
+  </section>
+
+  <!-- ===== ADMIN PANEL (staff only) ===== -->
+  <section class="panel" id="admin" role="dialog" aria-modal="true" aria-label="Staff admin login" aria-hidden="true" tabindex="-1">
+    <div class="panel-inner">
+  <section class="login admin">
+    <h2 class="section-title"><span>Staff Only</span></h2>
+    <p class="section-sub">Admin sign-in for the Scoop &amp; Swirl team.</p>
+
+    <div class="login-wrap">
+      <form class="login-card admin-form" novalidate>
+        <p class="admin-badge">🔒 Admin panel</p>
+        <label>
+          <span>Staff email</span>
+          <input type="email" name="email" required autocomplete="username">
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" required minlength="6" autocomplete="current-password">
+        </label>
+        <button type="submit" class="btn-scoop">Sign in</button>
+        <p class="form-msg" aria-live="polite"></p>
+        <p class="demo-note">Preview only: this isn't connected to a real, secure staff login yet.</p>
+      </form>
+
+      <div class="member-card admin-dash" hidden>
+        <p class="hello">Hello, <span class="admin-name"></span></p>
+        <p class="card-label">Admin dashboard · preview</p>
+        <ul class="admin-tiles">
+          <li><b>Menu</b><span>Edit flavors &amp; prices</span></li>
+          <li><b>Hours</b><span>Update opening times</span></li>
+          <li><b>Messages</b><span>Contact form inbox</span></li>
+          <li><b>Members</b><span>Scoop-card customers</span></li>
+        </ul>
+        <p class="demo-note">These tools need a backend before they can save anything.</p>
+        <button type="button" class="btn-scoop admin-signout">Sign out</button>
+      </div>
+    </div>
+  </section>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
