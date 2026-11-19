@@ -35,6 +35,7 @@
     <svg class="lights" aria-hidden="true"></svg>
 
     <div class="shop-stage">
+      <div class="scene-scroll">
       <svg class="shop" data-paint="teal" viewBox="-200 -130 1300 752" role="img" aria-labelledby="shop-title">
         <title id="shop-title">Shipping container ice cream shop on a beach boardwalk at sunset. Tap the window for the menu, the door for contact, the rooftop sign for our story, the signpost to find us.</title>
         <defs>
@@ -431,8 +432,10 @@
           </g>
         </a>
       </svg>
+      </div>
 
       <p class="hint">Tap the window, sign, signpost, members board or staff sign to explore</p>
+      <p class="hint hint-mobile">Swipe ↔ to explore the shop · tap to open</p>
       <div class="paint" role="group" aria-label="Paint the shop">
         <span class="paint-label">Paint the shop</span>
         <button class="swatch" data-paint="teal" aria-label="Ocean teal" aria-pressed="true" style="--sw:#2a8f8f"></button>
@@ -446,6 +449,14 @@
     </div>
 
   </section>
+
+  <!-- quick buttons for phones -->
+  <nav class="dock" aria-label="Quick links">
+    <a href="#menu"><span>🍦</span>Menu</a>
+    <a href="#story"><span>📖</span>Story</a>
+    <a href="#visit"><span>📍</span>Find Us</a>
+    <a href="#login"><span>👤</span>Login</a>
+  </nav>
 
   <!-- ===== MENU PANEL ===== -->
   <section class="panel" id="menu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true" tabindex="-1">
@@ -677,20 +688,63 @@
         </label>
         <button type="submit" class="btn-scoop">Sign in</button>
         <p class="form-msg" aria-live="polite"></p>
-        <p class="demo-note">Preview only: this isn't connected to a real, secure staff login yet.</p>
+        <p class="demo-note">Staff access only. Demo login: works in this browser, not a secure server login yet.</p>
       </form>
 
-      <div class="member-card admin-dash" hidden>
-        <p class="hello">Hello, <span class="admin-name"></span></p>
-        <p class="card-label">Admin dashboard · preview</p>
-        <ul class="admin-tiles">
-          <li><b>Menu</b><span>Edit flavors &amp; prices</span></li>
-          <li><b>Hours</b><span>Update opening times</span></li>
-          <li><b>Messages</b><span>Contact form inbox</span></li>
-          <li><b>Members</b><span>Scoop-card customers</span></li>
-        </ul>
-        <p class="demo-note">These tools need a backend before they can save anything.</p>
-        <button type="button" class="btn-scoop admin-signout">Sign out</button>
+      <div class="admin-dash" hidden>
+        <div class="dash-head">
+          <div>
+            <p class="card-label">Admin dashboard</p>
+            <p class="hello">Hello, <span class="admin-name">Admin</span></p>
+          </div>
+          <button type="button" class="btn-scoop admin-signout">Sign out</button>
+        </div>
+
+        <div class="dash-tabs" role="tablist" aria-label="Dashboard sections">
+          <button type="button" class="tab is-active" data-tab="overview" role="tab" aria-selected="true">Overview</button>
+          <button type="button" class="tab" data-tab="menu" role="tab" aria-selected="false">Menu</button>
+          <button type="button" class="tab" data-tab="hours" role="tab" aria-selected="false">Hours</button>
+          <button type="button" class="tab" data-tab="messages" role="tab" aria-selected="false">Messages</button>
+          <button type="button" class="tab" data-tab="members" role="tab" aria-selected="false">Members</button>
+        </div>
+
+        <div class="dash-pane" data-pane="overview">
+          <ul class="stat-row">
+            <li><b data-stat="flavors">0</b><span>Flavors on the menu</span></li>
+            <li><b data-stat="messages">0</b><span>Messages</span></li>
+            <li><b data-stat="members">0</b><span>Members</span></li>
+            <li><b data-stat="status">–</b><span>Shop right now</span></li>
+          </ul>
+          <p class="dash-hint">Use the tabs to edit the menu and hours, or read messages from the Find Us page.</p>
+        </div>
+
+        <div class="dash-pane" data-pane="menu" hidden>
+          <div class="menu-editor"></div>
+          <div class="dash-actions">
+            <button type="button" class="btn-scoop" data-act="save-menu">Save menu</button>
+            <button type="button" class="dash-ghost" data-act="reset-menu">Reset to original</button>
+          </div>
+          <p class="dash-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="dash-pane" data-pane="hours" hidden>
+          <div class="hours-editor"></div>
+          <div class="dash-actions">
+            <button type="button" class="btn-scoop" data-act="save-hours">Save hours</button>
+            <button type="button" class="dash-ghost" data-act="reset-hours">Reset to original</button>
+          </div>
+          <p class="dash-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="dash-pane" data-pane="messages" hidden>
+          <div class="msg-list"></div>
+        </div>
+
+        <div class="dash-pane" data-pane="members" hidden>
+          <div class="member-list"></div>
+        </div>
+
+        <p class="demo-note">Changes are saved in this browser only. A secure, shared admin needs a backend (e.g. Firebase).</p>
       </div>
     </div>
   </section>

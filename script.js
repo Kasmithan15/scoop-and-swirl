@@ -1,3 +1,10 @@
+// ---- tiny storage helpers (browser only; safe if storage is blocked) ----
+const store = {
+  get(k, fallback) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
 // ---- Early-evening stars in the sky ----
 (function makeStars() {
   const box = document.querySelector('.stars');
@@ -137,6 +144,14 @@ form.addEventListener('submit', e => {
     msg.className = 'form-msg err';
     return;
   }
+  const inbox = store.get('scoop-messages', []);
+  inbox.unshift({
+    name: form.elements.name.value.trim(),
+    email: form.elements.email.value.trim(),
+    message: form.elements.message.value.trim(),
+    date: new Date().toISOString()
+  });
+  store.set('scoop-messages', inbox.slice(0, 200));
   msg.textContent = "Thank you — we'll be in touch soon.";
   msg.className = 'form-msg ok';
   form.reset();
@@ -306,6 +321,9 @@ document.getElementById('year').textContent = new Date().getFullYear();
       ? { ...saved, stamps: Math.min(10, saved.stamps + 1) }
       : { name: (form.elements.name.value.trim() || email.split('@')[0]), email, stamps: 1 };
     save(member);
+    const list = store.get('scoop-members', []).filter(m => m.email !== member.email);
+    list.unshift({ ...member, last: new Date().toISOString() });
+    store.set('scoop-members', list.slice(0, 500));
     showCard(member);
   });
 
@@ -316,29 +334,181 @@ document.getElementById('year').textContent = new Date().getFullYear();
 })();
 
 // =====================================================================
-// Staff / admin login (front-end preview only: no real authentication.
-// A real admin login must be checked on a server, never in the browser.)
+// Admin dashboard
+// Demo login (checked in the browser, so NOT secure for real use):
+//   email: admin@scoopandswirl.com   password: Swirl@2026
+// Only a SHA-256 hash of "email:password" is kept in this file.
+// Edits are saved in this browser (localStorage). A real, shared admin
+// needs a backend such as Firebase or Supabase.
 // =====================================================================
-(function adminLogin() {
+(function adminDashboard() {
   const form = document.querySelector('.admin-form');
-  if (!form) return;
   const dash = document.querySelector('.admin-dash');
+  if (!form || !dash) return;
+  const ADMIN_HASH = '6a0ed9f0b881f4d045aa66d01bcf9d9ad38716f2af29fa9dc6bff79ba00a38c9';
   const msg = form.querySelector('.form-msg');
-  form.addEventListener('submit', e => {
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = iso => { try { return new Date(iso).toLocaleString(); } catch (e) { return iso; } };
+
+  // ---------- the live menu + hours on the website ----------
+  const cards = [...document.querySelectorAll('.cone-card')];
+  const original = cards.map(c => ({
+    name: c.querySelector('.scoop-name').textContent,
+    info: c.querySelector('.scoop-info').textContent,
+    price: c.querySelector('.price').textContent.replace('$', ''),
+    show: true
+  }));
+  function applyMenu(list) {
+    cards.forEach((c, i) => {
+      const f = list[i] || original[i];
+      c.querySelector('.scoop-name').textContent = f.name;
+      c.querySelector('.scoop-info').textContent = f.info;
+      c.querySelector('.price').textContent = '$' + Number(f.price || 0).toFixed(2);
+      c.classList.toggle('is-off', !f.show);
+    });
+  }
+  const hoursDl = document.querySelector('.visit .hours dl');
+  const hoursOriginal = hoursDl ? [...hoursDl.querySelectorAll('dt')].map(dt => ({ day: dt.textContent, time: dt.nextElementSibling.textContent })) : [];
+  function applyHours(list) {
+    if (!hoursDl) return;
+    hoursDl.innerHTML = list.map(h => `<dt>${esc(h.day)}</dt><dd>${esc(h.time)}</dd>`).join('');
+  }
+  // show saved changes to every visitor of this browser
+  applyMenu(store.get('scoop-menu', original));
+  applyHours(store.get('scoop-hours', hoursOriginal));
+
+  // ---------- sign in ----------
+  async function sha256(text) {
+    if (!(window.crypto && crypto.subtle)) return null;
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  const isIn = () => { try { return sessionStorage.getItem('scoop-admin') === '1'; } catch (e) { return false; } };
+  const setIn = on => { try { on ? sessionStorage.setItem('scoop-admin', '1') : sessionStorage.removeItem('scoop-admin'); } catch (e) {} };
+
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    const email = form.elements.email, pass = form.elements.password;
-    const badEmail = !email.value.trim() || !email.checkValidity();
-    const badPass = pass.value.length < 6;
-    email.classList.toggle('is-invalid', badEmail);
-    pass.classList.toggle('is-invalid', badPass);
-    if (badEmail || badPass) {
-      msg.textContent = 'Enter your staff email and a password of 6+ characters.';
-      msg.className = 'form-msg err';
+    const email = form.elements.email.value.trim().toLowerCase();
+    const pass = form.elements.password.value;
+    const h = await sha256(email + ':' + pass);
+    if (h === null) { msg.textContent = 'Please open the site over https to sign in.'; msg.className = 'form-msg err'; return; }
+    if (h !== ADMIN_HASH) {
+      form.elements.password.classList.add('is-invalid');
+      msg.textContent = 'Wrong email or password.'; msg.className = 'form-msg err';
       return;
     }
-    dash.querySelector('.admin-name').textContent = email.value.trim().split('@')[0];
-    form.hidden = true; dash.hidden = false;
-    form.reset(); msg.textContent = '';
+    setIn(true); form.reset(); msg.textContent = ''; showDash();
   });
-  dash.querySelector('.admin-signout').addEventListener('click', () => { dash.hidden = true; form.hidden = false; });
+  dash.querySelector('.admin-signout').addEventListener('click', () => { setIn(false); dash.hidden = true; form.hidden = false; });
+
+  // ---------- dashboard ----------
+  const tabs = dash.querySelectorAll('.dash-tabs .tab');
+  const panes = dash.querySelectorAll('.dash-pane');
+  function showTab(name) {
+    tabs.forEach(t => { const on = t.dataset.tab === name; t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); });
+    panes.forEach(p => { p.hidden = p.dataset.pane !== name; });
+    ({ overview: renderOverview, menu: renderMenu, hours: renderHours, messages: renderMessages, members: renderMembers })[name]();
+  }
+  tabs.forEach(t => t.addEventListener('click', () => showTab(t.dataset.tab)));
+
+  function showDash() { form.hidden = true; dash.hidden = false; showTab('overview'); }
+
+  function renderOverview() {
+    const menu = store.get('scoop-menu', original);
+    dash.querySelector('[data-stat=flavors]').textContent = menu.filter(f => f.show).length;
+    dash.querySelector('[data-stat=messages]').textContent = store.get('scoop-messages', []).length;
+    dash.querySelector('[data-stat=members]').textContent = store.get('scoop-members', []).length;
+    const open = document.querySelector('.open-now');
+    dash.querySelector('[data-stat=status]').textContent = open && open.classList.contains('closed') ? 'Closed' : 'Open';
+  }
+
+  const menuBox = dash.querySelector('.menu-editor');
+  function renderMenu() {
+    const menu = store.get('scoop-menu', original);
+    menuBox.innerHTML = menu.map((f, i) => `
+      <div class="edit-row" data-i="${i}">
+        <input type="text" name="name" value="${esc(f.name)}" aria-label="Flavor name">
+        <input type="text" name="info" value="${esc(f.info)}" aria-label="Description">
+        <input type="number" name="price" value="${esc(f.price)}" min="0" step="0.25" aria-label="Price in dollars">
+        <label class="show"><input type="checkbox" name="show" ${f.show ? 'checked' : ''}> On menu</label>
+      </div>`).join('');
+  }
+  const paneMsg = name => dash.querySelector(`[data-pane=${name}] .dash-msg`);
+  dash.querySelector('[data-act=save-menu]').addEventListener('click', () => {
+    const list = [...menuBox.querySelectorAll('.edit-row')].map(r => ({
+      name: r.querySelector('[name=name]').value.trim() || 'Untitled flavor',
+      info: r.querySelector('[name=info]').value.trim(),
+      price: r.querySelector('[name=price]').value || '0',
+      show: r.querySelector('[name=show]').checked
+    }));
+    store.set('scoop-menu', list); applyMenu(list);
+    paneMsg('menu').textContent = '✓ Menu saved. Open the Menu page to see it.';
+  });
+  dash.querySelector('[data-act=reset-menu]').addEventListener('click', () => {
+    store.del('scoop-menu'); applyMenu(original); renderMenu();
+    paneMsg('menu').textContent = 'Menu reset to the original flavors.';
+  });
+
+  const hoursBox = dash.querySelector('.hours-editor');
+  function renderHours() {
+    hoursBox.innerHTML = store.get('scoop-hours', hoursOriginal).map(h => `
+      <div class="edit-row">
+        <input type="text" name="day" value="${esc(h.day)}" aria-label="Days">
+        <input type="text" name="time" value="${esc(h.time)}" aria-label="Opening time">
+      </div>`).join('');
+  }
+  dash.querySelector('[data-act=save-hours]').addEventListener('click', () => {
+    const list = [...hoursBox.querySelectorAll('.edit-row')].map(r => ({
+      day: r.querySelector('[name=day]').value.trim(), time: r.querySelector('[name=time]').value.trim()
+    })).filter(h => h.day);
+    store.set('scoop-hours', list); applyHours(list);
+    paneMsg('hours').textContent = '✓ Hours saved. Open Find Us to see them.';
+  });
+  dash.querySelector('[data-act=reset-hours]').addEventListener('click', () => {
+    store.del('scoop-hours'); applyHours(hoursOriginal); renderHours();
+    paneMsg('hours').textContent = 'Hours reset to the original times.';
+  });
+
+  const msgBox = dash.querySelector('.msg-list');
+  function renderMessages() {
+    const inbox = store.get('scoop-messages', []);
+    msgBox.innerHTML = inbox.length ? inbox.map((m, i) => `
+      <article class="msg-item">
+        <header><b>${esc(m.name)}</b><small>${esc(fmt(m.date))}</small></header>
+        <small><a href="mailto:${esc(m.email)}">${esc(m.email)}</a></small>
+        <p>${esc(m.message)}</p>
+        <button type="button" class="dash-ghost" data-del="${i}">Delete</button>
+      </article>`).join('') : '<p class="empty">No messages yet. They appear here when someone uses the form on the Find Us page.</p>';
+  }
+  msgBox.addEventListener('click', e => {
+    const b = e.target.closest('[data-del]'); if (!b) return;
+    const inbox = store.get('scoop-messages', []); inbox.splice(Number(b.dataset.del), 1);
+    store.set('scoop-messages', inbox); renderMessages();
+  });
+
+  const memBox = dash.querySelector('.member-list');
+  function renderMembers() {
+    const list = store.get('scoop-members', []);
+    memBox.innerHTML = list.length ? list.map(m => `
+      <article class="mem-item">
+        <header><b>${esc(m.name)}</b><small>${esc(m.stamps)} / 10 stamps</small></header>
+        <small>${esc(m.email)} · last visit ${esc(fmt(m.last))}</small>
+      </article>`).join('') : '<p class="empty">No members yet. They appear here when customers sign in at the Members board.</p>';
+  }
+
+  if (isIn()) showDash();
+})();
+
+// ---- phones: start the swipeable scene centred on the serving window ----
+(function centreScene() {
+  const strip = document.querySelector('.scene-scroll');
+  if (!strip) return;
+  const centre = () => {
+    if (strip.scrollWidth <= strip.clientWidth) return;
+    strip.style.scrollBehavior = 'auto';
+    strip.scrollLeft = (strip.scrollWidth - strip.clientWidth) * 0.4;
+    strip.style.scrollBehavior = '';
+  };
+  window.addEventListener('load', centre);
+  let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(centre, 200); });
 })();
