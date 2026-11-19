@@ -969,3 +969,57 @@ body.on-order .cart-fab { display: none; }
   .ci-price { grid-column: 2; }
   .tracker li { font-size: .6rem; letter-spacing: .06em; }
 }
+
+/* =====================================================================
+   PHONES (v2): show the WHOLE shop, fitted to the screen width.
+   The scene is 1300 units wide; we trim 100 units of beach on each side
+   (scale to 118.2% and shift left 9.09%) so the container fills the width.
+   ===================================================================== */
+@media (max-width: 760px) {
+  .hero { padding: 60px 0 120px; justify-content: center; }
+  .scene-scroll { overflow: visible; }
+  .scene-scroll .shop { width: 118.2%; max-width: none; margin-left: -9.09%; }
+  /* labels scaled up so they stay readable on a small screen */
+  .shop .tag, .shop .staff-sign, .shop .signpost {
+    transform-box: fill-box; transform-origin: center; transform: scale(1.9);
+  }
+  .shop .members .tag { transform: scale(1.45); }
+  .hint-mobile { margin-top: 18px; }
+}
+
+/* phones: title above the shop + seamless sky/sand behind the scene */
+.m-title { display: none; }
+@media (max-width: 760px) {
+  .hero {
+    background: linear-gradient(180deg, rgb(253,170,106) 0%, rgb(250,165,104) 38%, rgb(214,186,143) 58%, rgb(203,174,131) 80%, rgb(196,166,123) 100%);
+  }
+  .m-title { display: block; position: relative; z-index: 5; text-align: center; margin: 70px 16px 8px; }
+  .m-eyebrow { font-size: .66rem; text-transform: uppercase; letter-spacing: .3em; color: #fff7ea; text-shadow: 0 1px 8px rgba(120,50,20,.35); }
+  .m-logo { font-family: var(--font-script); font-size: 2.9rem; line-height: 1.1; color: #fffaf0; text-shadow: 0 2px 16px rgba(120,50,20,.4); }
+  .hero { padding-top: 20px; }
+}
+
+/* phones: clip the scene to its own box and extend its sky + sand
+   seamlessly above and below it (no visible bands) */
+@media (max-width: 760px) {
+  .scene-scroll { position: relative; overflow: hidden; width: 100%; }
+  .scene-scroll .shop { overflow: hidden; display: block; }
+  .shop-stage { position: relative; z-index: 2; }
+  .scene-scroll::before, .scene-scroll::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 100vh; z-index: -1; pointer-events: none;
+  }
+}
+@media (max-width: 760px) {
+  .scene-scroll::before { bottom: 100%; background: linear-gradient(180deg, rgb(253,176,112) 0%, rgb(251,162,102) 100%); }
+  .scene-scroll::after  { top: 100%;    background: linear-gradient(180deg, rgb(216,190,147) 0%, rgb(205,176,133) 60%, rgb(196,166,123) 100%); }
+  .hero { background: linear-gradient(180deg, rgb(253,180,116), rgb(196,166,123)); }
+}
+
+@media (max-width: 760px) { .scene-scroll { overflow: visible; } .hero { overflow: hidden; } }
+
+@media (max-width: 760px) {
+  .scene-scroll .shop {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 93%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 9%, #000 93%, transparent 100%);
+  }
+}
