@@ -77,7 +77,7 @@ if (config) {
         cred = await A.createUserWithEmailAndPassword(auth, email, password);
         const display = name || email.split('@')[0];
         await A.updateProfile(cred.user, { displayName: display });
-        const m = { name: display, email, stamps: 1, last: F.serverTimestamp() };
+        const m = { name: display, email, stamps: 0, last: F.serverTimestamp() };
         await F.setDoc(F.doc(db, 'members', cred.user.uid), m);
         return { ...m, last: new Date().toISOString() };
       }
@@ -85,14 +85,12 @@ if (config) {
       const ref = F.doc(db, 'members', cred.user.uid);
       const snap = await F.getDoc(ref);
       if (!snap.exists()) {
-        const m = { name: cred.user.displayName || email.split('@')[0], email, stamps: 1, last: F.serverTimestamp() };
+        const m = { name: cred.user.displayName || email.split('@')[0], email, stamps: 0, last: F.serverTimestamp() };
         await F.setDoc(ref, m);
         return m;
       }
-      const cur = snap.data();
-      const stamps = Math.min(10, (cur.stamps || 0) + 1);
-      await F.updateDoc(ref, { stamps, last: F.serverTimestamp() });
-      return { ...cur, stamps };
+      await F.updateDoc(ref, { last: F.serverTimestamp() });
+      return snap.data();
     }),
     memberCurrent: guard(async () => {
       const u = await authReady;
@@ -102,6 +100,14 @@ if (config) {
       return snap.exists() ? snap.data() : null;
     }),
     memberSignOut: guard(async () => A.signOut(auth)),
+    // Scoop Club: one stamp per order (the rules allow +1 per update)
+    memberAddStamp: guard(async () => {
+      const u = auth.currentUser; if (!u || isAdminUser(u)) return null;
+      const ref = F.doc(db, 'members', u.uid);
+      await F.updateDoc(ref, { stamps: F.increment(1), last: F.serverTimestamp() });
+      const snap = await F.getDoc(ref);
+      return snap.exists() ? snap.data().stamps : null;
+    }),
     listMembers: guard(async () => {
       const q = F.query(F.collection(db, 'members'), F.orderBy('last', 'desc'), F.limit(500));
       return (await F.getDocs(q)).docs.map(d => ({ ...d.data(), last: toISO(d.data().last) }));

@@ -56,16 +56,16 @@ service cloud.firestore {
         && request.resource.data.status in ['new', 'preparing', 'out', 'done', 'cancelled'];
     }
 
-    // Members: each customer manages their own card; the admin can see all.
-    // Stamps can only go up by one per sign-in, to a maximum of 10.
+    // Members (Scoop Club): each customer manages their own card; the admin
+    // can see all. Cards start at 0 stamps and can only go up by one at a time
+    // (one stamp per order; every 10th stamp earns a free scoop).
     match /members/{uid} {
       allow read: if isAdmin() || signedIn(uid);
-      allow create: if signedIn(uid) && request.resource.data.stamps == 1;
+      allow create: if signedIn(uid) && request.resource.data.stamps == 0;
       allow update: if signedIn(uid)
         && request.resource.data.stamps is int
         && request.resource.data.stamps >= resource.data.stamps
-        && request.resource.data.stamps <= resource.data.stamps + 1
-        && request.resource.data.stamps <= 10;
+        && request.resource.data.stamps <= resource.data.stamps + 1;
       allow delete: if isAdmin();
     }
   }

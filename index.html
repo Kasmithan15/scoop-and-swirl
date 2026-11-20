@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Yellowtail&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=202611201535">
-  <link rel="stylesheet" href="sunset.css?v=202611201535">
+  <link rel="stylesheet" href="styles.css?v=202611201549">
+  <link rel="stylesheet" href="sunset.css?v=202611201549">
 </head>
 <body>
 
@@ -703,14 +703,20 @@
   <section class="panel theme-lavender" id="login" role="dialog" aria-modal="true" aria-label="Customer login" aria-hidden="true" tabindex="-1">
     <div class="panel-inner">
   <section class="login">
-    <h2 class="section-title"><span>Members' Table</span></h2>
-    <p class="section-sub">Sign in to collect scoop stamps. Your 10th scoop is on us.</p>
+    <h2 class="section-title"><span>Scoop Club</span></h2>
+    <p class="section-sub">Join free and get treated every time you visit.</p>
+    <ul class="club-perks">
+      <li><b>🎁</b><span>Welcome treat</span><small>10% off your first order</small></li>
+      <li><b>🍦</b><span>A stamp every order</span><small>every 10th scoop is free</small></li>
+      <li><b>🎡</b><span>Spin the Scoop</span><small>a new treat every day</small></li>
+      <li><b>🏅</b><span>Member levels</span><small>Single → Double → Triple Sundae</small></li>
+    </ul>
 
     <div class="login-wrap">
       <form class="login-card" novalidate>
         <div class="tabs" role="tablist" aria-label="Sign in or create an account">
           <button type="button" class="tab is-active" role="tab" aria-selected="true" data-mode="signin">Sign in</button>
-          <button type="button" class="tab" role="tab" aria-selected="false" data-mode="signup">Create account</button>
+          <button type="button" class="tab" role="tab" aria-selected="false" data-mode="signup">Join the club</button>
         </div>
         <label class="name-field" hidden>
           <span>Your name</span>
@@ -729,12 +735,34 @@
         <p class="demo-note">Preview only: sign-ins aren't connected to a real account system yet.</p>
       </form>
 
-      <div class="member-card" hidden>
+      <div class="member-card club-card" hidden>
         <p class="hello">Welcome, <span class="member-name"></span></p>
+        <p class="tier-badge"><span class="tier-name"></span></p>
+        <p class="tier-next"></p>
+
         <p class="card-label">Your scoop card</p>
         <ol class="stamps" aria-label="Scoop stamps"></ol>
         <p class="stamp-note"></p>
-        <button type="button" class="btn-scoop signout">Sign out</button>
+
+        <div class="club-spin">
+          <p class="card-label">Spin the Scoop · once a day</p>
+          <div class="wheel" aria-hidden="true">
+            <span class="wheel-pin"></span>
+            <div class="wheel-disc"><span style="--a:30deg">15% off</span><span style="--a:90deg">$2 off</span><span style="--a:150deg">Free delivery</span><span style="--a:210deg">10% off</span><span style="--a:270deg">Double stamp</span><span style="--a:330deg">5% off</span></div>
+            <span class="wheel-hub">🍦</span>
+          </div>
+          <button type="button" class="btn-scoop spin-btn">Spin today</button>
+          <p class="spin-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="club-wallet">
+          <p class="card-label">Your rewards</p>
+          <ul class="wallet-list"></ul>
+          <p class="small">Use them at checkout on the Order page.</p>
+        </div>
+
+        <a href="#order" class="btn-scoop order-now">Order now</a>
+        <button type="button" class="dash-ghost signout">Sign out</button>
       </div>
     </div>
   </section>
@@ -771,9 +799,14 @@
             <label><input type="radio" name="payment" value="cash" checked><span>💵 Cash on delivery</span></label>
             <label><input type="radio" name="payment" value="card"><span>💳 Card on delivery</span></label>
           </div>
+          <label class="reward-field" hidden><span>Use a Scoop Club reward</span>
+            <select name="reward"><option value="">No reward</option></select>
+          </label>
+          <p class="club-hint small" hidden>🎁 <a href="#login">Join Scoop Club</a> for 10% off your first order.</p>
           <div class="summary">
             <p><span>Subtotal</span><b class="sum-sub">$0.00</b></p>
             <p class="fee-row"><span>Delivery</span><b class="sum-fee">$3.00</b></p>
+            <p class="disc-row" hidden><span class="disc-label">Reward</span><b class="sum-disc">−$0.00</b></p>
             <p class="sum-total"><span>Total</span><b class="sum-tot">$0.00</b></p>
             <p class="small fee-note">Free delivery on orders over $30.</p>
           </div>
@@ -796,6 +829,7 @@
         <p class="t-cancel" hidden>This order was cancelled. Please call us if this is a surprise.</p>
         <ul class="t-items"></ul>
         <p class="t-total"></p>
+        <p class="t-stamp small" hidden></p>
         <button type="button" class="btn-scoop new-order">Start a new order</button>
       </div>
 
@@ -928,8 +962,8 @@
     </div>
   </section>
 
-  <script src="firebase-config.js?v=202611201535"></script>
-  <script src="script.js?v=202611201535"></script>
-  <script type="module" src="backend.js?v=202611201535"></script>
+  <script src="firebase-config.js?v=202611201549"></script>
+  <script src="script.js?v=202611201549"></script>
+  <script type="module" src="backend.js?v=202611201549"></script>
 </body>
 </html>

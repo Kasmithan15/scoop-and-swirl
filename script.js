@@ -158,9 +158,10 @@ window.DB = {
   async deleteMessage(id) { store.set('scoop-messages', store.get('scoop-messages', []).filter((m, i) => (m.id || String(i)) !== id)); },
   async memberSignIn(mode, name, email, password) {
     const saved = store.get('scoop-member', null);
-    const member = (saved && saved.email === email)
-      ? { ...saved, stamps: Math.min(10, saved.stamps + 1) }
-      : { name: name || email.split('@')[0], email, stamps: 1 };
+    const known = store.get('scoop-members', []).find(m => m.email === email);
+    const member = (saved && saved.email === email) ? { ...saved }
+      : known ? { name: known.name, email, stamps: known.stamps || 0 }
+      : { name: name || email.split('@')[0], email, stamps: 0 };
     store.set('scoop-member', member);
     const list = store.get('scoop-members', []).filter(m => m.email !== member.email);
     list.unshift({ ...member, last: new Date().toISOString() });
@@ -169,6 +170,13 @@ window.DB = {
   },
   async memberCurrent() { return store.get('scoop-member', null); },
   async memberSignOut() { store.del('scoop-member'); },
+  async memberAddStamp() {
+    const m = store.get('scoop-member', null); if (!m) return null;
+    m.stamps = (m.stamps || 0) + 1; store.set('scoop-member', m);
+    const list = store.get('scoop-members', []).filter(x => x.email !== m.email);
+    list.unshift({ ...m, last: new Date().toISOString() }); store.set('scoop-members', list);
+    return m.stamps;
+  },
   async listMembers() { return store.get('scoop-members', []); },
   async adminSignIn(email, password) {
     // demo login forgives capital letters and stray spaces (phone keyboards add them)
@@ -391,46 +399,107 @@ document.getElementById('year').textContent = new Date().getFullYear();
 })();
 
 // =====================================================================
-// Customer login (Members board). With Firebase: real accounts.
-// Without it: demo mode, kept in this browser only.
+// SCOOP CLUB (Members board): welcome treat, a stamp per order (every 10th
+// scoop free), a daily prize wheel, member levels and a rewards wallet
+// that is used at checkout.
 // =====================================================================
-(function customerLogin() {
+(function scoopClub() {
   const form = document.querySelector('.login-card');
   if (!form) return;
-  const card = document.querySelector('.member-card');
+  const card = document.querySelector('.club-card');
   const msg = form.querySelector('.form-msg');
   const nameField = form.querySelector('.name-field');
   const submit = form.querySelector('.login-submit');
   const tabs = form.querySelectorAll('.tab');
   const note = form.querySelector('.demo-note');
   const colors = ['#f49ab3', '#9fdcc6', '#ffd36e', '#c9b3f2', '#f2dfb8', '#ff9a7a', '#6b4430', '#a9dde0', '#f49ab3', '#9fdcc6'];
-  let mode = 'signin';
+  const WHEEL = [
+    { label: '15% off', type: 'pct', value: 15 }, { label: '$2 off', type: 'amt', value: 2 },
+    { label: 'Free delivery', type: 'delivery', value: 0 }, { label: '10% off', type: 'pct', value: 10 },
+    { label: 'Double stamp', type: 'stamp2', value: 0 }, { label: '5% off', type: 'pct', value: 5 }
+  ];
+  const DAY = 864e5;
+  const today = () => new Date().toDateString();
+  const tierOf = s => s >= 15 ? { name: '🏆 Triple Sundae', next: null } : s >= 5 ? { name: '🍨 Double Scoop', next: 15 } : { name: '🍦 Single Scoop', next: 5 };
+  let mode = 'signin', spinning = false, turned = 0;
+
+  // ---- shared club API (the order page uses it) ----
+  const Club = window.ScoopClub = {
+    member: null,
+    key(k) { return `scoop-${k}:${(this.member && this.member.email || '').toLowerCase()}`; },
+    seq: 0,
+    // a slow check that started earlier must never overwrite a newer sign-in / sign-out
+    async refresh() { const my = ++this.seq; const m = await window.DB.memberCurrent().catch(() => null); if (my === this.seq) this.member = m; return this.member; },
+    wallet() { if (!this.member) return []; const now = Date.now(); return store.get(this.key('wallet'), []).filter(r => !r.expires || r.expires > now); },
+    add(r) { const w = this.wallet(); w.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...r }); store.set(this.key('wallet'), w); render(); },
+    consume(id) { store.set(this.key('wallet'), this.wallet().filter(r => r.id !== id)); render(); },
+    async addStamps(n) {
+      if (!this.member) return 0;
+      let s = this.member.stamps || 0;
+      for (let i = 0; i < n; i++) {
+        const v = await window.DB.memberAddStamp().catch(() => null);
+        s = typeof v === 'number' ? v : s + 1;
+        if (s % 10 === 0) this.add({ label: 'Free scoop ($7 off)', type: 'amt', value: 7 });
+      }
+      this.member.stamps = s; render();
+      return n;
+    }
+  };
 
   function setMode(m) {
     mode = m;
     tabs.forEach(t => { const on = t.dataset.mode === m; t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); });
     nameField.hidden = m !== 'signup';
-    submit.textContent = m === 'signup' ? 'Create account' : 'Sign in';
+    submit.textContent = m === 'signup' ? 'Join the club' : 'Sign in';
     form.querySelector('[name=password]').setAttribute('autocomplete', m === 'signup' ? 'new-password' : 'current-password');
     msg.textContent = '';
   }
   tabs.forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
 
-  function showCard(m) {
-    form.hidden = true; card.hidden = false;
+  // ---- member card ----
+  const wheelDisc = card.querySelector('.wheel-disc');
+  const spinBtn = card.querySelector('.spin-btn');
+  const spinMsg = card.querySelector('.spin-msg');
+  function render() {
+    const m = Club.member;
+    if (!m) return;
+    const s = m.stamps || 0;
     card.querySelector('.member-name').textContent = m.name;
-    const ol = card.querySelector('.stamps');
-    ol.innerHTML = '';
+    const t = tierOf(s);
+    card.querySelector('.tier-name').textContent = t.name;
+    card.querySelector('.tier-next').textContent = t.next ? `${t.next - s} more order${t.next - s === 1 ? '' : 's'} to the next level` : 'Top level reached. Thank you!';
+    const filled = s > 0 && s % 10 === 0 ? 10 : s % 10;
+    const ol = card.querySelector('.stamps'); ol.innerHTML = '';
     for (let i = 0; i < 10; i++) {
       const li = document.createElement('li');
-      if (i < m.stamps) { li.className = 'on'; li.style.setProperty('--c', colors[i]); li.style.setProperty('--n', i); }
+      if (i < filled) { li.className = 'on'; li.style.setProperty('--c', colors[i]); li.style.setProperty('--n', i); }
       ol.appendChild(li);
     }
-    const left = 10 - m.stamps;
-    card.querySelector('.stamp-note').textContent = left > 0
-      ? `${m.stamps} of 10 stamps · ${left} more for a free scoop`
-      : 'Your next scoop is free!';
+    card.querySelector('.stamp-note').textContent = s === 0 ? 'Order online to collect your first stamp.'
+      : filled === 10 ? 'Card full! A free scoop is in your rewards.' : `${filled} of 10 · ${10 - filled} more for a free scoop`;
+    const spunToday = store.get(Club.key('spin'), '') === today();
+    if (!spinning) { spinBtn.disabled = spunToday; spinBtn.textContent = spunToday ? 'Come back tomorrow' : 'Spin today'; }
+    const w = Club.wallet();
+    card.querySelector('.wallet-list').innerHTML = w.length ? w.map(r => `<li><b>${r.label}</b>${r.expires ? `<small>until ${new Date(r.expires).toLocaleDateString()}</small>` : ''}</li>`).join('')
+      : '<li class="empty">No rewards yet. Spin the wheel!</li>';
   }
+
+  spinBtn.addEventListener('click', () => {
+    if (spinning || !Club.member || store.get(Club.key('spin'), '') === today()) return;
+    spinning = true; spinBtn.disabled = true; spinBtn.textContent = 'Spinning…'; spinMsg.textContent = '';
+    const k = Math.floor(Math.random() * WHEEL.length);
+    turned += 360 * 5 + (360 - ((k * 60 + 30 + turned) % 360));   // land segment k under the pin
+    wheelDisc.style.transform = `rotate(${turned}deg)`;
+    setTimeout(() => {
+      const prize = WHEEL[k];
+      store.set(Club.key('spin'), today());
+      Club.add({ label: prize.label, type: prize.type, value: prize.value, expires: Date.now() + 7 * DAY });
+      spinning = false; render();
+      spinMsg.textContent = `🎉 You won ${prize.label}! It's in your rewards for 7 days.`;
+    }, 4300);
+  });
+
+  function showCard() { form.hidden = true; card.hidden = false; render(); }
   function showForm() { card.hidden = true; form.hidden = false; form.reset(); setMode('signin'); }
 
   form.addEventListener('submit', async e => {
@@ -445,21 +514,28 @@ document.getElementById('year').textContent = new Date().getFullYear();
     if (!ok) { msg.textContent = 'Please check your details (password needs 6+ characters).'; msg.className = 'form-msg err'; return; }
     submit.disabled = true; msg.textContent = '';
     try {
-      const member = await window.DB.memberSignIn(mode, form.elements.name.value.trim(), form.elements.email.value.trim(), form.elements.password.value);
-      showCard(member);
+      const signed = await window.DB.memberSignIn(mode, form.elements.name.value.trim(), form.elements.email.value.trim(), form.elements.password.value);
+      Club.seq++; Club.member = signed;
+      // welcome treat, once per member
+      if (!store.get(Club.key('welcomed'), false)) {
+        store.set(Club.key('welcomed'), true);
+        Club.add({ label: '10% off your first order', type: 'pct', value: 10 });
+      }
+      showCard();
+      spinMsg.textContent = mode === 'signup' ? '🎁 Welcome! 10% off your first order is in your rewards.' : '';
     } catch (err) {
       msg.textContent = err.message || 'Sign-in failed. Please try again.'; msg.className = 'form-msg err';
     } finally { submit.disabled = false; }
   });
 
-  card.querySelector('.signout').addEventListener('click', async () => { await window.DB.memberSignOut(); showForm(); });
+  card.querySelector('.signout').addEventListener('click', async () => { await window.DB.memberSignOut(); Club.seq++; Club.member = null; showForm(); });
 
   onDBReady(async () => {
     if (note) note.textContent = window.DB.remote
       ? 'Your account is stored securely. Passwords are never visible to us.'
-      : "Preview only: sign-ins aren't connected to a real account system yet.";
-    const m = await window.DB.memberCurrent().catch(() => null);
-    if (m) showCard(m); else if (!card.hidden) showForm();
+      : 'Preview: your club card is saved on this device until online accounts are connected.';
+    const m = await Club.refresh();
+    if (m) showCard(); else if (!card.hidden) showForm();
   });
 })();
 
@@ -687,7 +763,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
     if (!list) return;
     memBox.innerHTML = list.length ? list.map(m => `
       <article class="mem-item">
-        <header><b>${esc(m.name)}</b><small>${esc(m.stamps)} / 10 stamps</small></header>
+        <header><b>${esc(m.name)}</b><small>${esc(m.stamps || 0)} stamps · ${(m.stamps || 0) >= 15 ? '🏆 Triple Sundae' : (m.stamps || 0) >= 5 ? '🍨 Double Scoop' : '🍦 Single Scoop'}</small></header>
         <small>${esc(m.email)} · last visit ${esc(fmt(m.last))}</small>
       </article>`).join('') : '<p class="empty">No members yet. They appear here when customers sign in at the Members board.</p>';
   }
@@ -727,12 +803,29 @@ document.getElementById('year').textContent = new Date().getFullYear();
   const subtotal = () => cart.reduce((t, i) => t + unit(i) * i.qty, 0);
   const isDelivery = () => form.elements.type.value === 'delivery';
   const fee = () => (isDelivery() && cart.length && subtotal() < FREE_OVER) ? DELIVERY_FEE : 0;
+  const Club = () => window.ScoopClub;
+  const rewardSel = form.elements.reward;
+  const chosenReward = () => { const c = Club(); return c && rewardSel.value ? c.wallet().find(r => r.id === rewardSel.value) : null; };
+  function discount() {
+    const r = chosenReward(); if (!r || !cart.length) return 0;
+    const sub = subtotal(), max = Math.max(0, sub + fee() - 0.5);       // never below $0.50
+    const d = r.type === 'pct' ? sub * r.value / 100 : r.type === 'amt' ? r.value : r.type === 'delivery' ? fee() : 0;
+    return Math.min(max, Math.round(d * 100) / 100);
+  }
+  function syncRewards() {
+    const c = Club(), member = c && c.member, w = member ? c.wallet().filter(r => r.type !== 'stamp2' || true) : [];
+    const keep = rewardSel.value;
+    rewardSel.innerHTML = '<option value="">No reward</option>' + w.map(r => `<option value="${r.id}">${esc(r.label)}</option>`).join('');
+    if (w.some(r => r.id === keep)) rewardSel.value = keep;
+    form.querySelector('.reward-field').hidden = !w.length;
+    form.querySelector('.club-hint').hidden = !!member;
+  }
 
   function render() {
     const count = cart.reduce((t, i) => t + i.qty, 0);
     fab.hidden = count === 0;
     fab.querySelector('.cf-count').textContent = count;
-    fab.querySelector('.cf-total').textContent = money(subtotal() + fee());
+    fab.querySelector('.cf-total').textContent = money(subtotal() + fee() - discount());
     empty.hidden = cart.length > 0;
     list.innerHTML = cart.map((i, n) => `
       <li data-n="${n}">
@@ -749,7 +842,11 @@ document.getElementById('year').textContent = new Date().getFullYear();
     form.querySelector('.sum-sub').textContent = money(subtotal());
     form.querySelector('.fee-row').hidden = !isDelivery();
     form.querySelector('.sum-fee').textContent = fee() ? money(fee()) : 'Free';
-    form.querySelector('.sum-tot').textContent = money(subtotal() + fee());
+    const d = discount(), r = chosenReward();
+    form.querySelector('.disc-row').hidden = !r;
+    form.querySelector('.disc-label').textContent = r ? r.label : 'Reward';
+    form.querySelector('.sum-disc').textContent = r && r.type === 'stamp2' ? '2× stamps' : '−' + money(d);
+    form.querySelector('.sum-tot').textContent = money(subtotal() + fee() - d);
     form.querySelector('.fee-note').hidden = !isDelivery();
     form.querySelector('.addr-field').hidden = !isDelivery();
     form.querySelector('.place-btn').disabled = cart.length === 0;
@@ -781,6 +878,8 @@ document.getElementById('year').textContent = new Date().getFullYear();
     save(); render();
   });
   form.addEventListener('change', render);
+  new MutationObserver(() => { if (panel.classList.contains('is-open')) { const c = Club(); (c ? c.refresh() : Promise.resolve()).then(() => { syncRewards(); render(); }); } })
+    .observe(panel, { attributes: true, attributeFilter: ['class'] });
 
   // hide the floating cart while the order page itself is open
   new MutationObserver(() => document.body.classList.toggle('on-order', panel.classList.contains('is-open')))
@@ -804,15 +903,26 @@ document.getElementById('year').textContent = new Date().getFullYear();
       address: isDelivery() ? form.elements.address.value.trim().slice(0, 300) : '',
       notes: form.elements.notes.value.trim().slice(0, 200),
       items: cart.map(i => ({ name: i.name, style: i.style, qty: i.qty, unit: Number(unit(i).toFixed(2)) })),
-      subtotal: Number(subtotal().toFixed(2)), deliveryFee: fee(), total: Number((subtotal() + fee()).toFixed(2))
+      subtotal: Number(subtotal().toFixed(2)), deliveryFee: fee(), discount: discount(), reward: chosenReward() ? chosenReward().label : '',
+      total: Number((subtotal() + fee() - discount()).toFixed(2))
     };
     const btn = form.querySelector('.place-btn'); btn.disabled = true; msg.textContent = '';
     try {
       await window.DB.placeOrder(order);
       const mine = store.get('scoop-my-orders', []); mine.unshift(order.id); store.set('scoop-my-orders', mine.slice(0, 20));
-      cart = []; save(); render();
+      // Scoop Club: use up the reward and earn stamps (double stamp reward = 2)
+      const used = chosenReward(), c = Club();
+      let earned = 0;
+      if (c && c.member) {
+        if (used) c.consume(used.id);
+        earned = await c.addStamps(used && used.type === 'stamp2' ? 2 : 1);
+      }
+      cart = []; save(); rewardSel.value = ''; syncRewards(); render();
       form.elements.notes.value = '';
       showTracking({ ...order, createdAt: new Date().toISOString() });
+      const ts = track.querySelector('.t-stamp');
+      ts.hidden = !earned;
+      ts.textContent = earned ? `🍦 +${earned} Scoop Club stamp${earned > 1 ? 's' : ''} earned!` : '';
     } catch (err) {
       msg.textContent = 'Sorry, the order could not be placed: ' + err.message; msg.className = 'form-msg err';
     } finally { btn.disabled = cart.length === 0; }
@@ -830,7 +940,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
     track.querySelectorAll('.tracker li').forEach((li, i) => { li.classList.toggle('on', at >= i); li.classList.toggle('now', at === i && o.status !== 'done'); });
     track.querySelector('.t-cancel').hidden = o.status !== 'cancelled';
     track.querySelector('.t-items').innerHTML = (o.items || []).map(i => `<li>${esc(i.qty)} × ${esc(i.name)} (${i.style === 'cone' ? 'cone' : 'cup'})</li>`).join('');
-    track.querySelector('.t-total').textContent = 'Total ' + money(o.total) + (o.payment === 'card' ? ' · card' : ' · cash') + ' on ' + (o.type === 'pickup' ? 'pickup' : 'delivery');
+    track.querySelector('.t-total').textContent = (o.discount ? `${o.reward} −${money(o.discount)} · ` : '') + 'Total ' + money(o.total) + (o.payment === 'card' ? ' · card' : ' · cash') + ' on ' + (o.type === 'pickup' ? 'pickup' : 'delivery');
   }
   function showTracking(o) {
     tracking = o.id; paint(o);
