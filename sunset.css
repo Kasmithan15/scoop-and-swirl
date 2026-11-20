@@ -1,0 +1,505 @@
+/* =====================================================================
+   SUNSET GELATO THEME — inner pages only (colours taken from the home scene;
+   token names kept from the earlier Lavender Café theme) (.theme-lavender on every pop-up
+   page). The home scene is untouched. Loaded after styles.css.
+   ===================================================================== */
+:root {
+  --lv-bg-main: #FBF6EE;
+  --lv-bg-gradient: linear-gradient(135deg, #F6C9A8 0%, #F3B48E 50%, #EFC7C2 100%);
+  --lv-lavender: #3FA9A5;
+  --lv-lavender-deep: #1F7A78;   /* AA-contrast lavender for white text on buttons */
+  --lv-lavender-light: #CDEBE7;
+  --lv-periwinkle: #E07A5F;
+  --lv-periwinkle-deep: #B4553D; /* AA-contrast periwinkle for text/outlines */
+  --lv-periwinkle-light: #F6DDD2;
+  --lv-blush: #F7D3C4;
+  --lv-gold: #C8A464;
+  --lv-gold-glow: #F6E3B4;
+  --lv-card-bg: rgba(255, 255, 255, 0.75);
+  --lv-text-primary: #0F2E3A;
+  --lv-text-secondary: #4E6670;
+  --lv-border-soft: rgba(31, 122, 120, 0.25);
+  --lv-shadow: 0 8px 24px rgba(15, 46, 58, 0.18);
+  --lv-hover-glow: 0 0 0 1px var(--lv-gold), 0 10px 30px rgba(246, 227, 180, 0.45);
+}
+
+/* remap the site's tokens inside inner pages so every existing component follows */
+.theme-lavender {
+  --bg: #FFFFFF;
+  --bg-2: #FDF8F2;
+  --card: var(--lv-card-bg);
+  --ribs: linear-gradient(transparent, transparent);
+  --brass: var(--lv-gold);
+  --brass-soft: var(--lv-lavender-deep);
+  --brass-deep: #8A6A2E;
+  --teal: var(--lv-lavender-deep);
+  --teal-deep: var(--lv-lavender-deep);
+  --ivory: var(--lv-text-primary);
+  --text: var(--lv-text-secondary);
+  --muted: var(--lv-text-secondary);
+  --coral: #B23A2E;
+  --line: var(--lv-border-soft);
+  --shadow: var(--lv-shadow);
+  --font-serif: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  --font-sans: "Poppins", "Inter", system-ui, sans-serif;
+  color: var(--lv-text-secondary);
+  font-family: var(--font-sans);
+}
+
+/* ---------- page background: misty lavender + soft corner glows + cloud texture ---------- */
+.panel.theme-lavender {
+  background:
+    radial-gradient(ellipse 45% 32% at 0% 0%, rgba(246, 201, 168, .45), transparent 70%),
+    radial-gradient(ellipse 45% 32% at 100% 0%, rgba(239, 199, 194, .5), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(205, 235, 231, .3), transparent 70%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='c'><feTurbulence type='fractalNoise' baseFrequency='.008 .012' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 .86 0 0 0 0 .72 0 0 0 0 .55 0 0 0 .10 0'/></filter><rect width='400' height='400' filter='url(%23c)'/></svg>"),
+    var(--lv-bg-main) !important;
+}
+.theme-lavender .panel-inner::before { border-color: rgba(200, 164, 100, .45); box-shadow: inset 0 0 60px rgba(246, 227, 180, .25); }
+
+/* ---------- page header banner: arched gradient band behind each page title ---------- */
+.theme-lavender .panel-inner > section:first-child { isolation: isolate; }
+.theme-lavender .panel-inner > section:first-child::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -96px; height: 360px; z-index: -1;
+  background: var(--lv-bg-gradient); opacity: .9;
+  border-radius: 0 0 50% 50% / 0 0 90px 90px;
+  box-shadow: inset 0 -20px 40px rgba(255, 255, 255, .25);
+}
+.theme-lavender .section-title { color: var(--lv-text-primary); font-family: var(--font-serif); font-weight: 600; }
+.theme-lavender .section-title span::after { color: var(--lv-gold); }
+.theme-lavender .panel-inner > section:first-child > .section-title::after {
+  content: ""; display: block; width: 70px; height: 2px; margin: 14px auto 0; background: var(--lv-gold); border-radius: 2px;
+}
+.theme-lavender .section-title.left::after { margin-left: 0; }
+.theme-lavender .section-sub, .theme-lavender p { color: var(--lv-text-secondary); }
+.theme-lavender .kicker, .theme-lavender .kicker-lux, .theme-lavender .m-tag, .theme-lavender .card-label,
+.theme-lavender .visit-blob h3, .theme-lavender .order-card h3, .theme-lavender .admin-badge { color: var(--lv-lavender-deep); }
+.theme-lavender .ornament { color: var(--lv-gold); }
+.theme-lavender .ornament i { background: linear-gradient(90deg, transparent, var(--lv-gold)); }
+.theme-lavender .ornament i:last-child { background: linear-gradient(90deg, var(--lv-gold), transparent); }
+.theme-lavender h3, .theme-lavender .hello, .theme-lavender .addr, .theme-lavender strong,
+.theme-lavender .hours dt, .theme-lavender .where strong { color: var(--lv-text-primary); }
+
+/* ---------- frosted glass cards ---------- */
+.theme-lavender .story-blob, .theme-lavender .visit-blob, .theme-lavender .contact-scoop,
+.theme-lavender .login-card, .theme-lavender .member-card, .theme-lavender .admin-dash,
+.theme-lavender .order-card, .theme-lavender .bubble, .theme-lavender .menu .cone-card {
+  background: var(--lv-card-bg) !important;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--lv-border-soft) !important;
+  box-shadow: var(--lv-shadow), inset 0 0 20px rgba(246, 227, 180, .35);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+/* arched tops echo the café's arched windows */
+.theme-lavender .story-blob, .theme-lavender .visit-blob { border-radius: 180px 180px 24px 24px !important; padding-top: 80px; }
+.theme-lavender .contact-scoop, .theme-lavender .login-card, .theme-lavender .member-card { border-radius: 200px 200px 24px 24px !important; }
+.theme-lavender .order-card, .theme-lavender .admin-dash { border-radius: 24px !important; }
+.theme-lavender .visit-blob:hover, .theme-lavender .order-card:hover, .theme-lavender .menu .cone-card:hover,
+.theme-lavender .bubble:hover { transform: translateY(-3px); box-shadow: var(--lv-hover-glow); }
+
+/* ---------- menu cards ---------- */
+.theme-lavender .menu .scoop-name { color: var(--lv-text-primary); }
+.theme-lavender .menu .scoop-info { color: var(--lv-text-secondary); }
+.theme-lavender .menu .price { color: var(--lv-text-primary); }
+.theme-lavender .m-foot { border-top-color: var(--lv-border-soft); }
+.theme-lavender .m-photo::after {
+  background: linear-gradient(to top, rgba(15, 46, 58, .18), transparent 40%), radial-gradient(ellipse at 50% 0%, rgba(246, 227, 180, .25), transparent 60%);
+  box-shadow: inset 0 0 0 1px rgba(200, 164, 100, .55);
+}
+.theme-lavender .m-photo img, .theme-lavender .g-frame img { filter: saturate(.95) brightness(1.03) contrast(1.02); }
+.theme-lavender .g figcaption { color: var(--lv-text-primary); }
+.theme-lavender .g figcaption::before, .theme-lavender .g figcaption::after { color: var(--lv-gold); }
+
+/* ---------- buttons ---------- */
+.theme-lavender .btn-scoop, .theme-lavender .add-btn, .theme-lavender .place-btn {
+  background: var(--lv-lavender-deep) !important; color: #fff !important;
+  border: 0; border-radius: 999px; box-shadow: 0 6px 16px rgba(31, 122, 120, .25);
+  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+}
+.theme-lavender .btn-scoop::after { display: none; }
+.theme-lavender .btn-scoop:hover, .theme-lavender .add-btn:hover, .theme-lavender .place-btn:hover {
+  transform: translateY(-2px); box-shadow: 0 0 0 3px var(--lv-gold-glow), 0 10px 26px rgba(246, 227, 180, .7); filter: none;
+}
+.theme-lavender .add-btn.added { background: var(--lv-periwinkle-deep) !important; }
+.theme-lavender .dash-ghost, .theme-lavender .chip, .theme-lavender .ochip, .theme-lavender .tab,
+.theme-lavender .ci-style button, .theme-lavender .qty button {
+  background: transparent; color: var(--lv-periwinkle-deep); border: 1px solid var(--lv-periwinkle);
+  border-radius: 999px; transition: background .25s ease, color .25s ease, box-shadow .25s ease;
+}
+.theme-lavender .dash-ghost:hover, .theme-lavender .chip:hover, .theme-lavender .ochip:hover, .theme-lavender .tab:hover {
+  background: var(--lv-lavender-light); box-shadow: 0 0 0 3px rgba(246, 227, 180, .6);
+}
+.theme-lavender .chip.is-active, .theme-lavender .ochip.is-active, .theme-lavender .tab.is-active,
+.theme-lavender .ci-style button.on, .theme-lavender .seg input:checked + span {
+  background: var(--lv-lavender-deep); border-color: var(--lv-lavender-deep); color: #fff;
+}
+.theme-lavender .tabs, .theme-lavender .dash-tabs { background: rgba(205, 235, 231, .45); border-color: var(--lv-border-soft); }
+.theme-lavender .seg span { color: var(--lv-text-secondary); border-color: var(--lv-periwinkle); }
+.theme-lavender .pw-toggle { color: var(--lv-periwinkle-deep); border-color: var(--lv-periwinkle); background: rgba(255,255,255,.6); }
+
+/* ---------- inputs ---------- */
+.theme-lavender input[type=text], .theme-lavender input[type=email], .theme-lavender input[type=tel],
+.theme-lavender input[type=password], .theme-lavender input[type=number], .theme-lavender textarea, .theme-lavender select {
+  background: rgba(205, 235, 231, .4) !important; color: var(--lv-text-primary) !important;
+  border: 1px solid var(--lv-border-soft) !important; border-radius: 12px !important;
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+.theme-lavender input::placeholder, .theme-lavender textarea::placeholder { color: #8A9AA0; }
+.theme-lavender input:focus, .theme-lavender textarea:focus, .theme-lavender select:focus {
+  outline: none; border-color: var(--lv-gold) !important; box-shadow: 0 0 0 3px var(--lv-gold-glow) !important;
+}
+.theme-lavender label, .theme-lavender .contact-scoop label, .theme-lavender .login-card label, .theme-lavender .order-card label { color: var(--lv-lavender-deep); }
+.theme-lavender .is-invalid { border-color: var(--coral) !important; }
+.theme-lavender .form-msg.err { color: #B23A2E; }
+.theme-lavender .form-msg.ok { color: var(--lv-periwinkle-deep); }
+.theme-lavender .demo-note, .theme-lavender .small, .theme-lavender .empty { color: var(--lv-text-secondary); }
+
+/* ---------- lists that act like tables (admin, cart) ---------- */
+.theme-lavender .edit-row, .theme-lavender .msg-item, .theme-lavender .mem-item, .theme-lavender .ord-item, .theme-lavender .cart-list li {
+  background: #FFFFFF; border: 1px solid var(--lv-border-soft); border-radius: 16px;
+}
+.theme-lavender .msg-list > :nth-child(even), .theme-lavender .member-list > :nth-child(even),
+.theme-lavender .order-list > :nth-child(even), .theme-lavender .menu-editor > :nth-child(even),
+.theme-lavender .cart-list > li:nth-child(even) { background: #FDF8F2; }
+.theme-lavender .msg-item b, .theme-lavender .mem-item b, .theme-lavender .ord-item b, .theme-lavender .ci-name, .theme-lavender .qty b { color: var(--lv-text-primary); }
+.theme-lavender .msg-item p, .theme-lavender .ord-item ul, .theme-lavender .t-items { color: var(--lv-text-secondary); }
+.theme-lavender .ci-price, .theme-lavender .t-total, .theme-lavender .summary .sum-total { color: var(--lv-text-primary); }
+.theme-lavender .summary p { color: var(--lv-text-secondary); }
+.theme-lavender .stat-row li { background: var(--lv-card-bg); border: 1px solid var(--lv-border-soft); border-radius: 120px 120px 20px 20px; box-shadow: var(--lv-shadow); }
+.theme-lavender .stat-row b { color: var(--lv-lavender-deep); }
+.theme-lavender .stat-row li:nth-child(2) b { color: var(--lv-periwinkle-deep); }
+.theme-lavender .stat-row li:nth-child(3) b { color: #B4553D; }
+.theme-lavender .stat-row li:nth-child(4) b { color: #8A6A2E; }
+.theme-lavender .ord-status { color: var(--lv-text-primary); border-color: var(--lv-border-soft); background: var(--lv-lavender-light); }
+.theme-lavender .ord-status.s-new { background: var(--lv-blush); border-color: var(--lv-blush); color: #7A3420; }
+.theme-lavender .ord-status.s-done { background: var(--lv-periwinkle-light); border-color: var(--lv-periwinkle-light); color: #135452; }
+.theme-lavender .badge-new { background: var(--lv-blush); color: #7A3420; }
+
+/* ---------- small pills, badges, tracker, stamps ---------- */
+.theme-lavender .open-now { background: var(--lv-lavender-deep); color: #fff; }
+.theme-lavender .open-now.closed { background: var(--lv-blush); color: #7A3420; border: 0; }
+.theme-lavender .badges li, .theme-lavender .badge { color: var(--lv-text-primary); border-color: var(--lv-gold); background: rgba(255, 255, 255, .6); }
+.theme-lavender .badge:nth-child(2) { background: var(--lv-lavender-light); color: var(--lv-text-primary); }
+.theme-lavender .tracker::before { background: var(--lv-lavender-light); }
+.theme-lavender .tracker i { background: #fff; border-color: var(--lv-lavender-light); }
+.theme-lavender .tracker li { color: var(--lv-text-secondary); }
+.theme-lavender .tracker li.on { color: var(--lv-text-primary); }
+.theme-lavender .tracker li.on i { background: var(--lv-lavender-deep); border-color: var(--lv-gold); }
+.theme-lavender .t-id { color: var(--lv-lavender-deep); }
+.theme-lavender .stamps li { border-color: var(--lv-lavender); }
+.theme-lavender .bubble { color: var(--lv-text-primary); }
+.theme-lavender a { color: var(--lv-periwinkle-deep); }
+.theme-lavender .reach-link { color: var(--lv-text-primary); border-bottom-color: var(--lv-gold); }
+.theme-lavender .reach-link:hover { color: var(--lv-lavender-deep); }
+
+/* ---------- section-specific ---------- */
+.theme-lavender .story p, .theme-lavender .hours dd, .theme-lavender .where p { color: var(--lv-text-secondary); }
+.theme-lavender .story-photo { border: 4px solid #fff; box-shadow: var(--lv-shadow); }
+/* Find Us: gelato photo under a soft lavender veil */
+.theme-lavender .visit {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(246, 227, 180, .35), transparent 70%),
+    linear-gradient(180deg, rgba(251, 246, 238, .55) 0%, rgba(205, 235, 231, .72) 55%, rgba(251, 246, 238, .9) 100%),
+    url('assets/img/gelato-display.jpg') center 55% / cover;
+  box-shadow: inset 0 0 0 1px rgba(200, 164, 100, .5), var(--lv-shadow);
+}
+.theme-lavender .footer { background: var(--lv-bg-gradient); color: var(--lv-text-primary); }
+.theme-lavender .footer-wave path { fill: #F6C9A8; }
+.theme-lavender .footer-logo { color: var(--lv-text-primary); }
+.theme-lavender .footer p, .theme-lavender .credit, .theme-lavender .credit a { color: var(--lv-text-primary); }
+
+/* ---------- top bar while an inner page is open (acts as the inner-page nav) ---------- */
+body.panel-open .nav {
+  --font-sans: "Poppins", system-ui, sans-serif;
+  background: rgba(251, 240, 228, .88); border-color: rgba(200, 164, 100, .45);
+  box-shadow: var(--lv-shadow);
+}
+body.panel-open .nav .logo { color: var(--lv-text-primary); }
+body.panel-open .nav .logo-scoop::before { background: var(--lv-lavender); }
+body.panel-open .nav .logo-scoop::after { background: var(--lv-gold); }
+body.panel-open .nav-links a { color: var(--lv-text-primary); position: relative; transition: background .25s ease, color .25s ease; }
+body.panel-open .nav-links a:hover { background: var(--lv-lavender-light); color: var(--lv-text-primary); }
+body.panel-open .nav-links a.is-current { background: var(--lv-lavender-deep); color: #fff; box-shadow: inset 4px 0 0 var(--lv-gold); }
+body.panel-open .nav-links a.nav-login { border-color: var(--lv-gold); color: var(--lv-lavender-deep); }
+body.panel-open .panel-close { background: var(--lv-lavender-deep); color: #fff; }
+body.panel-open .panel-close:hover { box-shadow: 0 0 0 3px var(--lv-gold-glow); }
+body.panel-open .nav-toggle { border-color: var(--lv-lavender-deep); }
+body.panel-open .nav-toggle span { background: var(--lv-lavender-deep); }
+@media (max-width: 760px) {
+  body.panel-open .nav-links { background: #FBEFE2; border-color: var(--lv-border-soft); }
+}
+/* floating cart while on inner pages */
+body.panel-open .cart-fab { background: var(--lv-lavender-deep); color: #fff; }
+body.panel-open .cf-count { background: #fff; color: var(--lv-lavender-deep); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 760px) {
+  .theme-lavender .panel-inner > section:first-child::before { height: 300px; border-radius: 0 0 50% 50% / 0 0 50px 50px; }
+  .theme-lavender .story-blob, .theme-lavender .visit-blob { border-radius: 120px 120px 22px 22px !important; padding-top: 60px; }
+  .theme-lavender .contact-scoop, .theme-lavender .login-card, .theme-lavender .member-card { border-radius: 130px 130px 22px 22px !important; }
+}
+
+/* top bar on inner pages: keep everything on one line with the wider Poppins font */
+body.panel-open .nav { width: min(1240px, calc(100% - 32px)); gap: 10px; }
+body.panel-open .nav .logo { white-space: nowrap; flex-shrink: 0; }
+body.panel-open .nav-links { gap: 2px; }
+body.panel-open .nav-links a { white-space: nowrap; font-size: .7rem; letter-spacing: .12em; padding: 9px 12px; }
+body.panel-open .panel-close { white-space: nowrap; flex-shrink: 0; font-size: .68rem; letter-spacing: .14em; padding: 10px 16px; }
+@media (max-width: 1180px) { body.panel-open .panel-close span { display: none; } }
+@media (max-width: 760px) { body.panel-open .nav-links a { font-size: .78rem; padding: 10px 16px; } }
+
+/* Find Us already has its own photo backdrop, so no extra header band there */
+#visit.theme-lavender .panel-inner > section:first-child::before { display: none; }
+
+/* =====================================================================
+   3D CUBE TURN when moving between pages with the top bar
+   The old page turns away on one face, the new page turns in on the next.
+   ===================================================================== */
+body.cube-stage { overflow: hidden; }
+.panel.cube {
+  clip-path: none !important;
+  visibility: visible !important;
+  transition: none !important;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  will-change: transform, opacity, filter;
+  animation-duration: .95s; animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(.65, 0, .35, 1);
+}
+/* forward (to a page further right in the top bar): cube turns left */
+.panel.cube-out-left  { transform-origin: 100% 50%; animation-name: cube-out-left; }
+.panel.cube-in-left   { transform-origin: 0% 50%;   animation-name: cube-in-left; }
+/* back (to a page further left): cube turns right */
+.panel.cube-out-right { transform-origin: 0% 50%;   animation-name: cube-out-right; }
+.panel.cube-in-right  { transform-origin: 100% 50%; animation-name: cube-in-right; }
+
+@keyframes cube-out-left {
+  0%   { transform: perspective(1800px) translateX(0) rotateY(0); filter: brightness(1); }
+  50%  { transform: perspective(1800px) translateX(-50%) translateZ(-220px) rotateY(-45deg); filter: brightness(.85); }
+  100% { transform: perspective(1800px) translateX(-100%) rotateY(-90deg); filter: brightness(.6); opacity: .6; }
+}
+@keyframes cube-in-left {
+  0%   { transform: perspective(1800px) translateX(100%) rotateY(90deg); filter: brightness(.6); opacity: .6; }
+  50%  { transform: perspective(1800px) translateX(50%) translateZ(-220px) rotateY(45deg); filter: brightness(.85); }
+  100% { transform: perspective(1800px) translateX(0) rotateY(0); filter: brightness(1); opacity: 1; }
+}
+@keyframes cube-out-right {
+  0%   { transform: perspective(1800px) translateX(0) rotateY(0); filter: brightness(1); }
+  50%  { transform: perspective(1800px) translateX(50%) translateZ(-220px) rotateY(45deg); filter: brightness(.85); }
+  100% { transform: perspective(1800px) translateX(100%) rotateY(90deg); filter: brightness(.6); opacity: .6; }
+}
+@keyframes cube-in-right {
+  0%   { transform: perspective(1800px) translateX(-100%) rotateY(-90deg); filter: brightness(.6); opacity: .6; }
+  50%  { transform: perspective(1800px) translateX(-50%) translateZ(-220px) rotateY(-45deg); filter: brightness(.85); }
+  100% { transform: perspective(1800px) translateX(0) rotateY(0); filter: brightness(1); opacity: 1; }
+}
+/* the page's own content floats in just after the turn settles */
+.panel.cube-in-left .panel-inner > * > *, .panel.cube-in-right .panel-inner > * > * { animation-delay: calc(.75s + var(--i, 0) * .07s) !important; }
+
+/* =====================================================================
+   3D ART-GALLERY WALK
+   A bright gallery hallway with framed art for every page. On a page
+   link the camera walks down the hall, turns to the page's frame,
+   moves in close, and the page opens from it.
+   World units: hall 1200 wide x 700 tall x 4000 deep; eye 900px away.
+   ===================================================================== */
+.g3d {
+  position: fixed; inset: 0; z-index: 95; overflow: hidden;
+  perspective: 900px; perspective-origin: 50% 46%;
+  background: radial-gradient(ellipse at 50% 40%, #fbfaf7, #efe8de 80%);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .45s ease, visibility 0s linear .45s;
+}
+.g3d.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .3s ease; }
+.g3d-stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; transform: scale(var(--s, 1)); }
+.g3d-world { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.g3d-world.walk { animation: g3d-walk var(--dur, 2.2s) cubic-bezier(.55, .05, .25, 1) forwards; }
+@keyframes g3d-walk {
+  0%   { transform: translateZ(0px) rotateY(0deg) translate3d(0px, 0px, 0px); }
+  58%  { transform: translateZ(0px) rotateY(0deg) translate3d(0px, 0px, var(--walk)); }
+  100% { transform: translateZ(var(--zc)) rotateY(var(--ry)) translate3d(var(--tx), var(--ty), var(--tz)); }
+}
+
+.g3d-plane { position: absolute; }
+.g3d-floor {
+  width: 1200px; height: 4000px; left: -600px; top: -2000px;
+  transform: translateY(350px) translateZ(-2000px) rotateX(90deg);
+  background:
+    linear-gradient(90deg, rgba(15,46,58,.06), transparent 18%, transparent 82%, rgba(15,46,58,.06)),
+    linear-gradient(180deg, #e2d6c6 0%, #f2ebe1 60%, #faf6f0 100%);
+}
+.g3d-ceiling {
+  width: 1200px; height: 4000px; left: -600px; top: -2000px;
+  transform: translateY(-350px) translateZ(-2000px) rotateX(-90deg);
+  background:
+    linear-gradient(90deg, transparent 47%, rgba(255,246,220,.95) 49%, rgba(255,246,220,.95) 51%, transparent 53%),
+    linear-gradient(180deg, #fdfcfa 0%, #f1eae0 100%);
+}
+.g3d-wall { width: 4000px; height: 700px; left: -2000px; top: -350px; }
+.g3d-left  { transform: translateX(-600px) translateZ(-2000px) rotateY(90deg);  background: linear-gradient(90deg, #faf8f4 0%, #efe7dc 100%); }
+.g3d-right { transform: translateX(600px)  translateZ(-2000px) rotateY(-90deg); background: linear-gradient(270deg, #faf8f4 0%, #efe7dc 100%); }
+.g3d-wall::after { /* skirting line along the floor */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: linear-gradient(#e6ddd0, #dccfbd);
+}
+.g3d-back {
+  width: 1200px; height: 700px; left: -600px; top: -350px; transform: translateZ(-4000px);
+  background: radial-gradient(ellipse at 50% 40%, #ffffff, #ece4d8);
+  display: grid; place-items: center; text-align: center;
+}
+.g3d-back p { font-family: "Yellowtail", cursive; font-size: 96px; color: #0F2E3A; line-height: 1; }
+.g3d-back small { display: block; margin-top: 18px; font: 500 22px "Poppins", sans-serif; letter-spacing: .4em; text-transform: uppercase; color: #4E6670; }
+
+/* framed art on the walls */
+.g3d-art {
+  position: absolute; left: -110px; top: -150px; width: 220px; height: 300px; margin: 0;
+  padding: 12px 12px 0; background: #fff;
+  border: 5px solid #C8A464; box-sizing: border-box;
+  box-shadow: 0 24px 40px rgba(15, 46, 58, .22), 0 0 0 1px rgba(15,46,58,.08);
+}
+.g3d-art::before { /* warm spotlight washing the wall above the frame */
+  content: ""; position: absolute; left: -90px; right: -90px; top: -150px; height: 260px; z-index: -1;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 236, 190, .75), transparent 70%);
+}
+.g3d-pic { width: 100%; height: 205px; background-size: cover; background-position: center; filter: saturate(.95) contrast(1.03); }
+.g3d-art figcaption { padding-top: 10px; text-align: center; font: 600 22px "Cormorant Garamond", Georgia, serif; color: #0F2E3A; line-height: 1.1; }
+.g3d-art figcaption small { display: block; margin-top: 4px; font: 500 9px "Poppins", sans-serif; letter-spacing: .3em; text-transform: uppercase; color: #4E6670; }
+.g3d-art[data-page="menu"]  { transform: translate3d(-597px, -40px, -700px)  rotateY(90deg); }
+.g3d-art[data-page="story"] { transform: translate3d(597px,  -40px, -1100px) rotateY(-90deg); }
+.g3d-art[data-page="visit"] { transform: translate3d(-597px, -40px, -1500px) rotateY(90deg); }
+.g3d-art[data-page="order"] { transform: translate3d(597px,  -40px, -1900px) rotateY(-90deg); }
+.g3d-art[data-page="login"] { transform: translate3d(-597px, -40px, -2300px) rotateY(90deg); }
+.g3d-art[data-page="admin"] { transform: translate3d(597px,  -40px, -2700px) rotateY(-90deg); }
+
+/* exhibit label, like the gallery title in the reference */
+.g3d-label {
+  position: absolute; left: 50%; bottom: 7vh; transform: translateX(-50%);
+  text-align: center; color: #0F2E3A; pointer-events: none;
+  opacity: 0; transition: opacity .6s ease .4s;
+}
+.g3d.on .g3d-label { opacity: 1; }
+.g3d-label small { display: block; font: 500 .62rem "Poppins", sans-serif; letter-spacing: .4em; text-transform: uppercase; color: #4E6670; margin-bottom: 6px; }
+.g3d-label b { font: 600 clamp(1.4rem, 3vw, 2.1rem) "Cormorant Garamond", Georgia, serif; letter-spacing: .14em; text-transform: uppercase; }
+
+/* spotlights painted on the walls above each frame (wall px: left = -z, right = z + 4000) */
+.g3d-art::before { display: none; }
+.g3d-left {
+  background:
+    radial-gradient(ellipse 210px 230px at 700px 120px,  rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 1500px 120px, rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 2300px 120px, rgba(255,236,190,.8), transparent 70%),
+    linear-gradient(90deg, #faf8f4 0%, #efe7dc 100%);
+}
+.g3d-right {
+  background:
+    radial-gradient(ellipse 210px 230px at 2900px 120px, rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 2100px 120px, rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 1300px 120px, rgba(255,236,190,.8), transparent 70%),
+    linear-gradient(270deg, #faf8f4 0%, #efe7dc 100%);
+}
+@media (prefers-reduced-motion: reduce) { .g3d { display: none; } }
+
+/* =====================================================================
+   MENU WALL-ART VIEWER — one framed flavour at a time, Prev / Next.
+   Light on the GPU: a static lit wall + a short slide between pieces.
+   ===================================================================== */
+.art-viewer { max-width: 980px; margin: 10px auto 0; }
+.av-wall {
+  position: relative; padding: 70px 20px 70px; overflow: hidden;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, transparent 0 calc(100% - 64px), #e7ddcf calc(100% - 64px), #dccfbd 100%),  /* floor */
+    linear-gradient(180deg, transparent 0 34px, rgba(200,164,100,.55) 34px 36px, transparent 36px),     /* picture rail */
+    linear-gradient(180deg, #fbfaf7 0%, #f6efe5 100%);                                                    /* wall */
+  box-shadow: inset 0 0 0 1px var(--lv-border-soft), var(--lv-shadow);
+}
+.av-spot { /* warm gallery spotlight over the artwork */
+  position: absolute; left: 50%; top: -60px; width: 560px; height: 520px; transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 236, 190, .85), rgba(255, 236, 190, .25) 45%, transparent 70%);
+  pointer-events: none;
+}
+.av-floor { position: absolute; left: 50%; bottom: 40px; width: 300px; height: 26px; transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(15, 46, 58, .22), transparent 70%); pointer-events: none; }
+
+/* all cards share one spot; only the active one is shown */
+#menu .art-viewer .cone-row { display: grid; grid-template-columns: 1fr; place-items: center; max-width: none; margin: 0; position: relative; z-index: 1; }
+#menu .art-viewer .cone-card {
+  grid-area: 1 / 1; width: min(360px, 82vw);
+  background: #fff !important; backdrop-filter: none !important;
+  border: 6px solid #C8A464 !important; border-radius: 190px 190px 18px 18px;
+  box-shadow: 0 30px 50px -20px rgba(15, 46, 58, .4) !important;
+  opacity: 0; visibility: hidden; transform: translateX(60px) scale(.97);
+  transition: opacity .45s ease, transform .45s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .45s;
+  animation: none !important;
+}
+#menu .art-viewer .cone-card.is-active { opacity: 1; visibility: visible; transform: none; transition: opacity .45s ease, transform .45s cubic-bezier(.2, .8, .2, 1), visibility 0s; }
+#menu .art-viewer .cone-card.from-left { transform: translateX(-60px) scale(.97); }
+#menu .art-viewer .cone-card.leave-left { transform: translateX(-60px) scale(.97); }
+#menu .art-viewer .cone-card.leave-right { transform: translateX(60px) scale(.97); }
+#menu .art-viewer .cone-card.is-hidden, #menu .art-viewer .cone-card.is-off { display: none; }
+#menu .art-viewer .cone-card:hover { transform: none; }
+
+/* controls */
+.av-controls { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 22px; }
+.av-btn {
+  font: 500 .74rem "Poppins", sans-serif; letter-spacing: .18em; text-transform: uppercase;
+  color: #fff; background: var(--lv-lavender-deep); border: 0; border-radius: 999px;
+  padding: 13px 26px; cursor: pointer; transition: transform .25s ease, box-shadow .25s ease, opacity .25s ease;
+}
+.av-btn:hover { transform: translateY(-2px); box-shadow: 0 0 0 3px var(--lv-gold-glow), 0 10px 24px rgba(246, 227, 180, .7); }
+.av-btn:disabled { opacity: .35; cursor: default; transform: none; box-shadow: none; }
+.av-prev { background: transparent; color: var(--lv-periwinkle-deep); border: 1px solid var(--lv-periwinkle); }
+.av-count { margin: 0; min-width: 210px; text-align: center; font: 500 .7rem "Poppins", sans-serif; letter-spacing: .24em; text-transform: uppercase; color: #0F2E3A; }
+.av-count b { color: var(--lv-lavender-deep); }
+.av-count em { display: block; margin-top: 4px; font: italic 600 1.15rem "Cormorant Garamond", Georgia, serif; letter-spacing: .02em; text-transform: none; }
+.av-dots { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.av-dots button { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 1px solid var(--lv-lavender); background: transparent; cursor: pointer; transition: background .25s ease, transform .25s ease; }
+.av-dots button[aria-selected="true"] { background: var(--lv-lavender-deep); border-color: var(--lv-gold); transform: scale(1.3); }
+
+@media (max-width: 760px) {
+  .av-wall { padding: 50px 10px 60px; }
+  .av-spot { width: 380px; }
+  .av-controls { gap: 10px; }
+  .av-btn { padding: 12px 16px; font-size: .68rem; }
+  .av-count { min-width: 0; flex: 1; letter-spacing: .14em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #menu .art-viewer .cone-card { transition: none; }
+}
+
+/* slower, more graceful slides between wall-art pieces */
+#menu .art-viewer .cone-card {
+  transform: translateX(90px) scale(.96);
+  transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s linear .85s;
+}
+#menu .art-viewer .cone-card.is-active { transform: none; transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s; }
+#menu .art-viewer .cone-card.from-left,
+#menu .art-viewer .cone-card.leave-left { transform: translateX(-90px) scale(.96); }
+#menu .art-viewer .cone-card.leave-right { transform: translateX(90px) scale(.96); }
+/* same piece re-hung when a category starts with it */
+#menu .art-viewer .cone-card.rehang { animation: av-rehang 1.5s cubic-bezier(.45, 0, .25, 1) both !important; }
+@keyframes av-rehang {
+  0%   { opacity: 1; transform: none; }
+  42%  { opacity: 0; transform: translateX(-90px) scale(.96); }
+  58%  { opacity: 0; transform: translateX(90px) scale(.96); }
+  100% { opacity: 1; transform: none; }
+}
+.chip { transition: background .3s ease, color .3s ease, box-shadow .3s ease, transform .3s ease; }
+.chip:active { transform: scale(.96); }
+
+/* =====================================================================
+   "MOMENTS BY THE SEA" as wall art: one framed photo at a time
+   ===================================================================== */
+.photo-viewer { margin-top: 20px; }
+#menu .photo-viewer .gallery-row { display: grid; grid-template-columns: 1fr; place-items: center; max-width: none; margin: 0; position: relative; z-index: 1; }
+#menu .photo-viewer .g {
+  grid-area: 1 / 1; width: min(420px, 80vw); margin: 0 !important;
+  opacity: 0; visibility: hidden; transform: translateX(90px) scale(.96);
+  transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s linear .85s;
+  animation: none !important;
+}
+#menu .photo-viewer .g.is-active { opacity: 1; visibility: visible; transform: none; transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s; }
+#menu .photo-viewer .g.from-left, #menu .photo-viewer .g.leave-left { transform: translateX(-90px) scale(.96); }
+#menu .photo-viewer .g.leave-right { transform: translateX(90px) scale(.96); }
+#menu .photo-viewer .g-frame { clip-path: none !important; animation: none !important; aspect-ratio: 3 / 3.9; box-shadow: 0 30px 50px -20px rgba(15, 46, 58, .4); }
+#menu .photo-viewer .g figcaption { font-size: 1.35rem; margin-top: 16px; }
+@media (max-width: 760px) { #menu .photo-viewer .g { width: min(340px, 80vw); } }
+@media (prefers-reduced-motion: reduce) { #menu .photo-viewer .g { transition: none; } }
