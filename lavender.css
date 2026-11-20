@@ -395,3 +395,54 @@ body.cube-stage { overflow: hidden; }
     linear-gradient(270deg, #faf8f4 0%, #ece8f2 100%);
 }
 @media (prefers-reduced-motion: reduce) { .g3d { display: none; } }
+
+/* =====================================================================
+   MENU AS A 3D WALL-ART HALL (scroll to walk past each flavour)
+   ===================================================================== */
+.wall-hall { position: relative; margin: 10px 0 0; }      /* height set by JS */
+.wh-view {
+  position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden;
+  perspective: 1000px; perspective-origin: 50% 46%;
+  background: radial-gradient(ellipse at 50% 42%, #fbfaf7 0%, #efecf4 60%, #e4e0ec 100%);
+}
+.wh-stage { position: absolute; left: 50%; top: 52%; width: 0; height: 0; transform-style: preserve-3d; transform: scale(var(--s, 1)); }
+.wh-world { position: absolute; left: 0; top: 0; transform-style: preserve-3d; will-change: transform; }
+.wh-plane { position: absolute; }
+.wh-floor { background: linear-gradient(180deg, #d9d5e2 0%, #ece9f2 70%, #f6f4f9 100%); }
+.wh-ceiling { background: linear-gradient(90deg, transparent 46%, rgba(255,246,220,.95) 49%, rgba(255,246,220,.95) 51%, transparent 54%), linear-gradient(180deg, #fdfcfa, #eeebf2); }
+.wh-wall { background: repeating-linear-gradient(90deg, transparent 0 640px, rgba(255,236,190,.55) 700px, transparent 780px), linear-gradient(90deg, #faf8f4, #ece8f2); }
+.wh-wall::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22px; background: linear-gradient(#e4e0ea, #d6d1df); }
+
+/* the flavour cards become framed art hanging in the hall */
+#menu .wall-hall, #menu .wall-hall .cone-row { opacity: 1 !important; transform: none; animation: none !important; }
+#menu .wall-hall .cone-row { position: absolute; left: 0; top: 0; display: block; transform-style: preserve-3d; max-width: none; margin: 0; }
+#menu .wall-hall .cone-card {
+  position: absolute; left: -150px; top: -300px; width: 300px;
+  animation: none !important; opacity: 1;
+  background: #fff !important; backdrop-filter: none !important;
+  border: 6px solid #C9A66B !important; border-radius: 170px 170px 18px 18px;
+  box-shadow: 0 30px 50px -18px rgba(62, 53, 102, .35), 0 0 0 1px rgba(62,53,102,.06);
+  transition: opacity .35s ease, box-shadow .35s ease;
+  backface-visibility: hidden;
+}
+#menu .wall-hall .cone-card.is-current { box-shadow: 0 0 0 4px var(--lv-gold-glow), 0 34px 60px -16px rgba(62,53,102,.45); }
+#menu .wall-hall .cone-card.is-hidden, #menu .wall-hall .cone-card.is-off { display: none; }
+#menu .wall-hall .m-photo { clip-path: none !important; animation: none !important; }
+#menu .wall-hall .m-photo img { animation: none !important; }
+
+.wh-hint, .wh-count {
+  position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-align: center; pointer-events: none;
+  font: 500 .66rem "Poppins", sans-serif; letter-spacing: .32em; text-transform: uppercase; color: #6B6491;
+}
+.wh-hint { bottom: 9vh; transition: opacity .5s ease; }
+.wh-hint span { display: inline-block; animation: nudge 1.6s ease-in-out infinite; }
+.wh-count { bottom: 4.5vh; color: #3E3566; }
+.wh-count b { font-weight: 600; color: #6E55BE; }
+.wh-count em { font: italic 600 1rem "Cormorant Garamond", Georgia, serif; letter-spacing: .02em; text-transform: none; }
+
+@media (max-width: 760px) {
+  #menu .wall-hall .cone-card { width: 250px; left: -125px; top: -260px; border-radius: 140px 140px 16px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wh-hint span { animation: none; }
+}

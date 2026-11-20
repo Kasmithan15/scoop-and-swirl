@@ -897,3 +897,108 @@ document.querySelectorAll('input[type=password]').forEach(inp => {
 // ---- luxury menu: number cards so they float in one after another ----
 document.querySelectorAll('#menu .cone-card').forEach((c, i) => c.style.setProperty('--k', i));
 document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k', i));
+
+// =====================================================================
+// MENU WALL-ART HALL: scrolling the Menu page walks the camera down a
+// 3D gallery corridor; each flavour card hangs as framed art, angled on
+// alternating sides. Filters / admin edits re-hang the art automatically.
+// =====================================================================
+(function wallHall() {
+  const panel = document.getElementById('menu');
+  const hall = panel && panel.querySelector('.wall-hall');
+  if (!hall) return;
+  const view = hall.querySelector('.wh-view');
+  const stage = hall.querySelector('.wh-stage');
+  const world = hall.querySelector('.wh-world');
+  const row = hall.querySelector('.cone-row');
+  const hint = hall.querySelector('.wh-hint');
+  const countB = hall.querySelector('.wh-count b');
+  const countN = hall.querySelector('.wh-count span');
+  const countName = hall.querySelector('.wh-count em');
+  const floor = hall.querySelector('.wh-floor'), ceil = hall.querySelector('.wh-ceiling');
+  const wallL = hall.querySelector('.wh-left'), wallR = hall.querySelector('.wh-right');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const GAP = 680, FIRST = 380, H = 760;
+  let items = [], depth = 0, xOff = 380, rot = 28, cardW = 300;
+  let target = 0, cur = 0, running = false, lastCount = -1;
+
+  const visible = () => [...row.children].filter(c => c.classList.contains('cone-card') && !c.classList.contains('is-hidden') && !c.classList.contains('is-off'));
+
+  function layout() {
+    const vis = visible();
+    lastCount = vis.length;
+    const phone = innerWidth < 760;
+    const s = Math.max(.6, Math.min(1.15, innerHeight / 900));
+    stage.style.setProperty('--s', s.toFixed(3));
+    cardW = phone ? 250 : 300;
+    xOff = phone ? 70 : Math.min(420, (innerWidth * .27) / s);
+    rot = phone ? 14 : 30;
+    depth = Math.max(0, (vis.length - 1) * GAP);
+    items = vis.map((card, i) => {
+      const side = i % 2 === 0 ? -1 : 1;
+      const z = -(i * GAP) - FIRST;
+      card.style.transform = `translate3d(${side * xOff}px, 0px, ${z}px) rotateY(${-side * rot}deg)`;
+      return { card, z, side, name: card.querySelector('.scoop-name').textContent };
+    });
+    // corridor planes long enough for every frame
+    const W = 2 * (xOff + cardW) + 400, D = depth + FIRST + 2600;
+    Object.assign(floor.style, { width: W + 'px', height: D + 'px', left: -W / 2 + 'px', top: -D / 2 + 'px',
+      transform: `translateY(${H / 2 - 60}px) translateZ(${-D / 2 + 800}px) rotateX(90deg)` });
+    Object.assign(ceil.style, { width: W + 'px', height: D + 'px', left: -W / 2 + 'px', top: -D / 2 + 'px',
+      transform: `translateY(${-H / 2 - 120}px) translateZ(${-D / 2 + 800}px) rotateX(-90deg)` });
+    [[wallL, -1], [wallR, 1]].forEach(([w, side]) => Object.assign(w.style, {
+      width: D + 'px', height: (H + 60) + 'px', left: -D / 2 + 'px', top: -(H + 60) / 2 - 30 + 'px',
+      transform: `translateX(${side * W / 2}px) translateZ(${-D / 2 + 800}px) rotateY(${-side * 90}deg)` }));
+    // scroll room: a screen per artwork
+    hall.style.height = `calc(100vh + ${Math.max(0, vis.length - 1) * 62}vh)`;
+    countN.textContent = vis.length;
+    onScroll(); cur = target; paint();
+  }
+
+  function onScroll() {
+    const r = hall.getBoundingClientRect();
+    const room = hall.offsetHeight - panel.clientHeight;
+    const p = room > 0 ? Math.min(1, Math.max(0, -r.top / room)) : 0;
+    target = p * depth;
+    hint.style.opacity = p > .03 ? 0 : 1;
+  }
+
+  function paint() {
+    // camera glides a little toward the side of the artwork it is approaching
+    const idx = depth ? Math.min(items.length - 1, Math.max(0, Math.round(cur / GAP))) : 0;
+    const near = items[idx];
+    const camX = near ? -near.side * xOff * .28 : 0;
+    world.style.transform = `translate3d(${camX}px, 0px, ${cur}px)`;
+    items.forEach((it, i) => {
+      const d = it.z + cur;                       // distance in front of the viewer (negative = ahead)
+      const o = d > 120 ? Math.max(0, 1 - (d - 120) / 260) : d < -3200 ? .25 : 1;
+      it.card.style.opacity = o.toFixed(2);
+      it.card.style.pointerEvents = o < .4 ? 'none' : '';
+      it.card.classList.toggle('is-current', i === idx);
+    });
+    if (near) { countB.textContent = idx + 1; countName.textContent = near.name; }
+  }
+
+  function loop() {
+    if (!panel.classList.contains('is-open')) { running = false; return; }
+    if (visible().length !== lastCount) layout();
+    cur += (target - cur) * (reduce ? 1 : .12);
+    if (Math.abs(target - cur) < .5) cur = target;
+    paint();
+    requestAnimationFrame(loop);
+  }
+  function start() { if (running) return; running = true; layout(); requestAnimationFrame(loop); }
+
+  panel.addEventListener('scroll', onScroll, { passive: true });
+  addEventListener('resize', () => { if (panel.classList.contains('is-open')) layout(); });
+  new MutationObserver(() => { if (panel.classList.contains('is-open')) start(); })
+    .observe(panel, { attributes: true, attributeFilter: ['class'] });
+  // re-hang when filters change
+  panel.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    setTimeout(layout, 0);
+    const top = panel.scrollTop + hall.getBoundingClientRect().top - panel.getBoundingClientRect().top - 40;
+    if (panel.scrollTo && panel.scrollTop > top) panel.scrollTo({ top, behavior: 'smooth' });
+  }));
+  layout();
+})();
