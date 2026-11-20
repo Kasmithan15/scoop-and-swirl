@@ -1237,3 +1237,22 @@ body.on-order .cart-fab { display: none; }
   .shop .members .tag text { font-size: 11px; letter-spacing: 1.5px; }
   .shop .lounge .tag text { font-size: 13px; }
 }
+
+/* =====================================================================
+   SAME LAYOUT ON PHONE AS ON PC
+   Phones lay the page out at PC width (viewport width=1280) and scale it
+   down, so every alignment matches the PC. On a tall (portrait) screen the
+   beach scene keeps the PC's proportions; the sunset sky continues above it
+   and the sand below it. Landscape PC screens are unaffected.
+   ===================================================================== */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (orientation: portrait) {
+  html, body { background: linear-gradient(180deg, rgb(253,176,112) 0%, rgb(251,162,102) 50%, rgb(205,176,133) 50%, rgb(196,166,123) 100%); }
+  body { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; }
+  .hero { height: min(100dvh, 62.5vw) !important; min-height: 0 !important; flex-shrink: 0; }
+}
+@media (orientation: portrait) {
+  /* soften the scene's top and bottom edges into the sky and sand around it */
+  .hero { -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 7%, #000 94%, transparent 100%);
+                  mask-image: linear-gradient(180deg, transparent 0, #000 7%, #000 94%, transparent 100%); }
+}
