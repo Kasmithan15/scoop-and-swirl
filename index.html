@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Yellowtail&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=202611201231">
-  <link rel="stylesheet" href="lavender.css?v=202611201231">
+  <link rel="stylesheet" href="styles.css?v=202611201242">
+  <link rel="stylesheet" href="lavender.css?v=202611201242">
 </head>
 <body>
 
@@ -592,11 +592,24 @@
   <section class="gallery" aria-label="Photo gallery">
     <h2 class="section-title"><span>Moments by the Sea</span></h2>
     <p class="ornament" aria-hidden="true"><i></i>✦<i></i></p>
+    <!-- photo wall-art viewer: one framed moment at a time -->
+    <div class="art-viewer photo-viewer" aria-roledescription="carousel" aria-label="Moments by the sea">
+      <div class="av-wall">
+        <div class="av-spot" aria-hidden="true"></div>
     <div class="gallery-row">
-      <figure class="g"><div class="g-frame"><img src="assets/img/beach-cones.jpg" alt="Three gelato cones held up against the sea" loading="lazy"></div><figcaption>On the shore</figcaption></figure>
-      <figure class="g"><div class="g-frame"><img src="assets/img/gelato-case.jpg" alt="Gelato display case full of colourful flavours" loading="lazy"></div><figcaption>Our case at noon</figcaption></figure>
-      <figure class="g"><div class="g-frame"><img src="assets/img/cone-in-hand.jpg" alt="Hand holding a waffle cone piled with gelato" loading="lazy"></div><figcaption>Piled high</figcaption></figure>
-      <figure class="g"><div class="g-frame"><img src="assets/img/gelato-trays.jpg" alt="Trays of pistachio, vanilla and berry gelato" loading="lazy"></div><figcaption>Made this morning</figcaption></figure>
+          <figure class="g"><div class="g-frame"><img src="assets/img/beach-cones.jpg" alt="Three gelato cones held up against the sea" loading="lazy"></div><figcaption>On the shore</figcaption></figure>
+          <figure class="g"><div class="g-frame"><img src="assets/img/gelato-case.jpg" alt="Gelato display case full of colourful flavours" loading="lazy"></div><figcaption>Our case at noon</figcaption></figure>
+          <figure class="g"><div class="g-frame"><img src="assets/img/cone-in-hand.jpg" alt="Hand holding a waffle cone piled with gelato" loading="lazy"></div><figcaption>Piled high</figcaption></figure>
+          <figure class="g"><div class="g-frame"><img src="assets/img/gelato-trays.jpg" alt="Trays of pistachio, vanilla and berry gelato" loading="lazy"></div><figcaption>Made this morning</figcaption></figure>
+        </div>
+        <div class="av-floor" aria-hidden="true"></div>
+      </div>
+      <div class="av-controls">
+        <button type="button" class="av-btn av-prev" aria-label="Previous photo">‹ Prev</button>
+        <p class="av-count" aria-live="polite"><b>1</b> / <span>4</span> · <em></em></p>
+        <button type="button" class="av-btn av-next" aria-label="Next photo">Next ›</button>
+      </div>
+      <div class="av-dots" role="tablist" aria-label="Choose a photo"></div>
     </div>
   </section>
     </div>
@@ -915,8 +928,8 @@
     </div>
   </section>
 
-  <script src="firebase-config.js?v=202611201231"></script>
-  <script src="script.js?v=202611201231"></script>
-  <script type="module" src="backend.js?v=202611201231"></script>
+  <script src="firebase-config.js?v=202611201242"></script>
+  <script src="script.js?v=202611201242"></script>
+  <script type="module" src="backend.js?v=202611201242"></script>
 </body>
 </html>

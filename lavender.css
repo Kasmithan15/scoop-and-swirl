@@ -483,3 +483,22 @@ body.cube-stage { overflow: hidden; }
 }
 .chip { transition: background .3s ease, color .3s ease, box-shadow .3s ease, transform .3s ease; }
 .chip:active { transform: scale(.96); }
+
+/* =====================================================================
+   "MOMENTS BY THE SEA" as wall art: one framed photo at a time
+   ===================================================================== */
+.photo-viewer { margin-top: 20px; }
+#menu .photo-viewer .gallery-row { display: grid; grid-template-columns: 1fr; place-items: center; max-width: none; margin: 0; position: relative; z-index: 1; }
+#menu .photo-viewer .g {
+  grid-area: 1 / 1; width: min(420px, 80vw); margin: 0 !important;
+  opacity: 0; visibility: hidden; transform: translateX(90px) scale(.96);
+  transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s linear .85s;
+  animation: none !important;
+}
+#menu .photo-viewer .g.is-active { opacity: 1; visibility: visible; transform: none; transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s; }
+#menu .photo-viewer .g.from-left, #menu .photo-viewer .g.leave-left { transform: translateX(-90px) scale(.96); }
+#menu .photo-viewer .g.leave-right { transform: translateX(90px) scale(.96); }
+#menu .photo-viewer .g-frame { clip-path: none !important; animation: none !important; aspect-ratio: 3 / 3.9; box-shadow: 0 30px 50px -20px rgba(62, 53, 102, .4); }
+#menu .photo-viewer .g figcaption { font-size: 1.35rem; margin-top: 16px; }
+@media (max-width: 760px) { #menu .photo-viewer .g { width: min(340px, 80vw); } }
+@media (prefers-reduced-motion: reduce) { #menu .photo-viewer .g { transition: none; } }

@@ -904,7 +904,7 @@ document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k
 // =====================================================================
 (function artViewer() {
   const panel = document.getElementById('menu');
-  const viewer = panel && panel.querySelector('.art-viewer');
+  const viewer = panel && panel.querySelector('.art-viewer:not(.photo-viewer)');
   if (!viewer) return;
   const row = viewer.querySelector('.cone-row');
   const prev = viewer.querySelector('.av-prev'), next = viewer.querySelector('.av-next');
@@ -1000,4 +1000,52 @@ document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k
   new MutationObserver(() => { if (panel.classList.contains('is-open')) rebuild(true); })
     .observe(panel, { attributes: true, attributeFilter: ['class'] });
   rebuild(false);
+})();
+
+// =====================================================================
+// "MOMENTS BY THE SEA" photo viewer: same wall-art slides as the menu
+// =====================================================================
+(function photoViewer() {
+  const viewer = document.querySelector('#menu .photo-viewer');
+  if (!viewer) return;
+  const row = viewer.querySelector('.gallery-row');
+  const items = [...row.querySelectorAll('.g')];
+  const prev = viewer.querySelector('.av-prev'), next = viewer.querySelector('.av-next');
+  const countB = viewer.querySelector('.av-count b'), countN = viewer.querySelector('.av-count span'), countName = viewer.querySelector('.av-count em');
+  const dots = viewer.querySelector('.av-dots');
+  const SLIDE_MS = 850;
+  let idx = 0;
+  dots.innerHTML = items.map((g, i) => `<button type="button" role="tab" aria-label="${g.querySelector('figcaption').textContent}" data-i="${i}"></button>`).join('');
+  countN.textContent = items.length;
+
+  function show(i, dir) {
+    const old = items[idx];
+    idx = (i + items.length) % items.length;
+    const g = items[idx];
+    if (old !== g) {
+      old.classList.remove('is-active', 'from-left');
+      old.classList.add(dir > 0 ? 'leave-left' : 'leave-right');
+      setTimeout(() => old.classList.remove('leave-left', 'leave-right'), SLIDE_MS + 20);
+    }
+    g.classList.remove('leave-left', 'leave-right');
+    g.classList.toggle('from-left', dir < 0);
+    void g.offsetWidth;
+    g.classList.remove('from-left');
+    g.classList.add('is-active');
+    countB.textContent = idx + 1;
+    countName.textContent = g.querySelector('figcaption').textContent;
+    dots.querySelectorAll('button').forEach((d, n) => d.setAttribute('aria-selected', String(n === idx)));
+  }
+  prev.addEventListener('click', () => show(idx - 1, -1));
+  next.addEventListener('click', () => show(idx + 1, 1));
+  dots.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) { const n = +b.dataset.i; if (n !== idx) show(n, n > idx ? 1 : -1); } });
+  let x0 = null, y0 = null;
+  row.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  row.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) dx < 0 ? show(idx + 1, 1) : show(idx - 1, -1);
+    x0 = null;
+  });
+  show(0, 0);
 })();
