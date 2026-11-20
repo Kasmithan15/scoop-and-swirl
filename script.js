@@ -899,106 +899,74 @@ document.querySelectorAll('#menu .cone-card').forEach((c, i) => c.style.setPrope
 document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k', i));
 
 // =====================================================================
-// MENU WALL-ART HALL: scrolling the Menu page walks the camera down a
-// 3D gallery corridor; each flavour card hangs as framed art, angled on
-// alternating sides. Filters / admin edits re-hang the art automatically.
+// MENU WALL-ART VIEWER: one framed flavour at a time with Prev / Next,
+// dots, arrow keys and swipe. Filters and admin edits are respected.
 // =====================================================================
-(function wallHall() {
+(function artViewer() {
   const panel = document.getElementById('menu');
-  const hall = panel && panel.querySelector('.wall-hall');
-  if (!hall) return;
-  const view = hall.querySelector('.wh-view');
-  const stage = hall.querySelector('.wh-stage');
-  const world = hall.querySelector('.wh-world');
-  const row = hall.querySelector('.cone-row');
-  const hint = hall.querySelector('.wh-hint');
-  const countB = hall.querySelector('.wh-count b');
-  const countN = hall.querySelector('.wh-count span');
-  const countName = hall.querySelector('.wh-count em');
-  const floor = hall.querySelector('.wh-floor'), ceil = hall.querySelector('.wh-ceiling');
-  const wallL = hall.querySelector('.wh-left'), wallR = hall.querySelector('.wh-right');
-  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const viewer = panel && panel.querySelector('.art-viewer');
+  if (!viewer) return;
+  const row = viewer.querySelector('.cone-row');
+  const prev = viewer.querySelector('.av-prev'), next = viewer.querySelector('.av-next');
+  const countB = viewer.querySelector('.av-count b'), countN = viewer.querySelector('.av-count span'), countName = viewer.querySelector('.av-count em');
+  const dots = viewer.querySelector('.av-dots');
+  let list = [], idx = 0;
 
-  const GAP = 680, FIRST = 380, H = 760;
-  let items = [], depth = 0, xOff = 380, rot = 28, cardW = 300;
-  let target = 0, cur = 0, running = false, lastCount = -1;
+  const visible = () => [...row.querySelectorAll('.cone-card')].filter(c => !c.classList.contains('is-hidden') && !c.classList.contains('is-off'));
 
-  const visible = () => [...row.children].filter(c => c.classList.contains('cone-card') && !c.classList.contains('is-hidden') && !c.classList.contains('is-off'));
-
-  function layout() {
-    const vis = visible();
-    lastCount = vis.length;
-    const phone = innerWidth < 760;
-    const s = Math.max(.6, Math.min(1.15, innerHeight / 900));
-    stage.style.setProperty('--s', s.toFixed(3));
-    cardW = phone ? 250 : 300;
-    xOff = phone ? 70 : Math.min(420, (innerWidth * .27) / s);
-    rot = phone ? 14 : 30;
-    depth = Math.max(0, (vis.length - 1) * GAP);
-    items = vis.map((card, i) => {
-      const side = i % 2 === 0 ? -1 : 1;
-      const z = -(i * GAP) - FIRST;
-      card.style.transform = `translate3d(${side * xOff}px, 0px, ${z}px) rotateY(${-side * rot}deg)`;
-      return { card, z, side, name: card.querySelector('.scoop-name').textContent };
-    });
-    // corridor planes long enough for every frame
-    const W = 2 * (xOff + cardW) + 400, D = depth + FIRST + 2600;
-    Object.assign(floor.style, { width: W + 'px', height: D + 'px', left: -W / 2 + 'px', top: -D / 2 + 'px',
-      transform: `translateY(${H / 2 - 60}px) translateZ(${-D / 2 + 800}px) rotateX(90deg)` });
-    Object.assign(ceil.style, { width: W + 'px', height: D + 'px', left: -W / 2 + 'px', top: -D / 2 + 'px',
-      transform: `translateY(${-H / 2 - 120}px) translateZ(${-D / 2 + 800}px) rotateX(-90deg)` });
-    [[wallL, -1], [wallR, 1]].forEach(([w, side]) => Object.assign(w.style, {
-      width: D + 'px', height: (H + 60) + 'px', left: -D / 2 + 'px', top: -(H + 60) / 2 - 30 + 'px',
-      transform: `translateX(${side * W / 2}px) translateZ(${-D / 2 + 800}px) rotateY(${-side * 90}deg)` }));
-    // scroll room: a screen per artwork
-    hall.style.height = `calc(100vh + ${Math.max(0, vis.length - 1) * 62}vh)`;
-    countN.textContent = vis.length;
-    onScroll(); cur = target; paint();
+  function rebuild(keep) {
+    const keepCard = keep ? list[idx] : null;
+    list = visible();
+    idx = keepCard && list.includes(keepCard) ? list.indexOf(keepCard) : 0;
+    row.querySelectorAll('.cone-card').forEach(c => c.classList.remove('is-active', 'from-left', 'leave-left', 'leave-right'));
+    dots.innerHTML = list.map((c, i) => `<button type="button" role="tab" aria-label="${c.querySelector('.scoop-name').textContent}" data-i="${i}"></button>`).join('');
+    show(idx, 0);
   }
 
-  function onScroll() {
-    const r = hall.getBoundingClientRect();
-    const room = hall.offsetHeight - panel.clientHeight;
-    const p = room > 0 ? Math.min(1, Math.max(0, -r.top / room)) : 0;
-    target = p * depth;
-    hint.style.opacity = p > .03 ? 0 : 1;
+  function show(i, dir) {
+    if (!list.length) { countB.textContent = 0; countN.textContent = 0; countName.textContent = 'No flavours here'; prev.disabled = next.disabled = true; return; }
+    const old = list[idx];
+    idx = (i + list.length) % list.length;
+    const card = list[idx];
+    if (old && old !== card) {
+      old.classList.remove('is-active', 'from-left');
+      old.classList.add(dir > 0 ? 'leave-left' : 'leave-right');
+      setTimeout(() => old.classList.remove('leave-left', 'leave-right'), 460);
+    }
+    card.classList.remove('leave-left', 'leave-right');
+    card.classList.toggle('from-left', dir < 0);
+    void card.offsetWidth;                       // start the slide from the correct side
+    card.classList.remove('from-left');
+    card.classList.add('is-active');
+    countB.textContent = idx + 1; countN.textContent = list.length;
+    countName.textContent = card.querySelector('.scoop-name').textContent;
+    dots.querySelectorAll('button').forEach((d, n) => d.setAttribute('aria-selected', String(n === idx)));
+    prev.disabled = next.disabled = list.length < 2;
   }
 
-  function paint() {
-    // camera glides a little toward the side of the artwork it is approaching
-    const idx = depth ? Math.min(items.length - 1, Math.max(0, Math.round(cur / GAP))) : 0;
-    const near = items[idx];
-    const camX = near ? -near.side * xOff * .28 : 0;
-    world.style.transform = `translate3d(${camX}px, 0px, ${cur}px)`;
-    items.forEach((it, i) => {
-      const d = it.z + cur;                       // distance in front of the viewer (negative = ahead)
-      const o = d > 120 ? Math.max(0, 1 - (d - 120) / 260) : d < -3200 ? .25 : 1;
-      it.card.style.opacity = o.toFixed(2);
-      it.card.style.pointerEvents = o < .4 ? 'none' : '';
-      it.card.classList.toggle('is-current', i === idx);
-    });
-    if (near) { countB.textContent = idx + 1; countName.textContent = near.name; }
-  }
+  prev.addEventListener('click', () => show(idx - 1, -1));
+  next.addEventListener('click', () => show(idx + 1, 1));
+  dots.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) { const n = +b.dataset.i; show(n, n > idx ? 1 : -1); } });
 
-  function loop() {
-    if (!panel.classList.contains('is-open')) { running = false; return; }
-    if (visible().length !== lastCount) layout();
-    cur += (target - cur) * (reduce ? 1 : .12);
-    if (Math.abs(target - cur) < .5) cur = target;
-    paint();
-    requestAnimationFrame(loop);
-  }
-  function start() { if (running) return; running = true; layout(); requestAnimationFrame(loop); }
+  // arrow keys while the Menu page is open
+  document.addEventListener('keydown', e => {
+    if (!panel.classList.contains('is-open') || /input|textarea/i.test(document.activeElement.tagName)) return;
+    if (e.key === 'ArrowRight') { show(idx + 1, 1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { show(idx - 1, -1); e.preventDefault(); }
+  });
+  // swipe on phones
+  let x0 = null, y0 = null;
+  row.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  row.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) dx < 0 ? show(idx + 1, 1) : show(idx - 1, -1);
+    x0 = null;
+  });
 
-  panel.addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', () => { if (panel.classList.contains('is-open')) layout(); });
-  new MutationObserver(() => { if (panel.classList.contains('is-open')) start(); })
+  // filters and admin edits change which flavours are shown
+  panel.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => setTimeout(() => rebuild(false), 0)));
+  new MutationObserver(() => { if (panel.classList.contains('is-open')) rebuild(true); })
     .observe(panel, { attributes: true, attributeFilter: ['class'] });
-  // re-hang when filters change
-  panel.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
-    setTimeout(layout, 0);
-    const top = panel.scrollTop + hall.getBoundingClientRect().top - panel.getBoundingClientRect().top - 40;
-    if (panel.scrollTo && panel.scrollTop > top) panel.scrollTo({ top, behavior: 'smooth' });
-  }));
-  layout();
+  rebuild(false);
 })();
