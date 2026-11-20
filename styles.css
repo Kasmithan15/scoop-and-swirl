@@ -1229,3 +1229,11 @@ body.on-order .cart-fab { display: none; }
 @media (prefers-reduced-motion: reduce) { #menu .g { opacity: 1; } #menu .g-frame { clip-path: none; } }
 
 .g-frame { padding: 5px; background: linear-gradient(160deg, #f3e1ad 0%, #b08f52 48%, #ecd59f 100%); }
+
+/* phones: keep label text at its designed size inside each pill (the whole
+   label is scaled up instead), so OUR STORY / CUSTOMER LOGIN stay centred */
+@media (max-width: 760px) {
+  .shop .tag text { font-size: 13px; letter-spacing: 2.5px; }
+  .shop .members .tag text { font-size: 11px; letter-spacing: 1.5px; }
+  .shop .lounge .tag text { font-size: 13px; }
+}
