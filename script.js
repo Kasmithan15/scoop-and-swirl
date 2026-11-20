@@ -910,7 +910,8 @@ document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k
   const prev = viewer.querySelector('.av-prev'), next = viewer.querySelector('.av-next');
   const countB = viewer.querySelector('.av-count b'), countN = viewer.querySelector('.av-count span'), countName = viewer.querySelector('.av-count em');
   const dots = viewer.querySelector('.av-dots');
-  let list = [], idx = 0;
+  let list = [], idx = 0, filterName = '';
+  const SLIDE_MS = 850;
 
   const visible = () => [...row.querySelectorAll('.cone-card')].filter(c => !c.classList.contains('is-hidden') && !c.classList.contains('is-off'));
 
@@ -929,9 +930,9 @@ document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k
     idx = (i + list.length) % list.length;
     const card = list[idx];
     if (old && old !== card) {
-      old.classList.remove('is-active', 'from-left');
+      old.classList.remove('is-active', 'from-left', 'rehang');
       old.classList.add(dir > 0 ? 'leave-left' : 'leave-right');
-      setTimeout(() => old.classList.remove('leave-left', 'leave-right'), 460);
+      setTimeout(() => old.classList.remove('leave-left', 'leave-right'), SLIDE_MS + 20);
     }
     card.classList.remove('leave-left', 'leave-right');
     card.classList.toggle('from-left', dir < 0);
@@ -939,7 +940,7 @@ document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k
     card.classList.remove('from-left');
     card.classList.add('is-active');
     countB.textContent = idx + 1; countN.textContent = list.length;
-    countName.textContent = card.querySelector('.scoop-name').textContent;
+    countName.textContent = (filterName ? filterName + ' · ' : '') + card.querySelector('.scoop-name').textContent;
     dots.querySelectorAll('button').forEach((d, n) => d.setAttribute('aria-selected', String(n === idx)));
     prev.disabled = next.disabled = list.length < 2;
   }
@@ -965,7 +966,37 @@ document.querySelectorAll('#menu .g').forEach((g, i) => g.style.setProperty('--k
   });
 
   // filters and admin edits change which flavours are shown
-  panel.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => setTimeout(() => rebuild(false), 0)));
+  panel.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+    filterName = c.dataset.filter === 'all' ? '' : c.textContent.trim();
+    setTimeout(refilter, 0);
+  }));
+
+  // animate a category change: the current piece slides off the wall and the
+  // category's first flavour slides in (or the same piece is re-hung)
+  function refilter() {
+    const oldCard = list[idx];
+    if (oldCard) oldCard.classList.remove('rehang');
+    const wasHidden = oldCard && oldCard.classList.contains('is-hidden');
+    list = visible();
+    idx = 0;
+    dots.innerHTML = list.map((c, i) => `<button type="button" role="tab" aria-label="${c.querySelector('.scoop-name').textContent}" data-i="${i}"></button>`).join('');
+    const card = list[0];
+    if (!card) { show(0, 0); return; }
+    row.querySelectorAll('.cone-card').forEach(c => { if (c !== oldCard && c !== card) c.classList.remove('is-active', 'from-left', 'leave-left', 'leave-right', 'rehang'); });
+    if (!oldCard || oldCard === card) {
+      card.classList.remove('rehang'); void card.offsetWidth; card.classList.add('rehang');
+      setTimeout(() => card.classList.remove('rehang'), SLIDE_MS * 2);
+      list.length && show(0, 0);
+      return;
+    }
+    if (wasHidden) { oldCard.classList.remove('is-hidden'); void oldCard.offsetWidth; }   // keep it on the wall long enough to slide away
+    oldCard.classList.remove('is-active', 'from-left');
+    oldCard.classList.add('leave-left');
+    setTimeout(() => { oldCard.classList.remove('leave-left'); if (wasHidden) oldCard.classList.add('is-hidden'); }, SLIDE_MS + 20);
+    card.classList.remove('leave-left', 'leave-right', 'from-left', 'is-active');
+    void card.offsetWidth;
+    setTimeout(() => { list[idx] === card && show(0, 0); }, 120);
+  }
   new MutationObserver(() => { if (panel.classList.contains('is-open')) rebuild(true); })
     .observe(panel, { attributes: true, attributeFilter: ['class'] });
   rebuild(false);

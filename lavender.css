@@ -463,3 +463,23 @@ body.cube-stage { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   #menu .art-viewer .cone-card { transition: none; }
 }
+
+/* slower, more graceful slides between wall-art pieces */
+#menu .art-viewer .cone-card {
+  transform: translateX(90px) scale(.96);
+  transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s linear .85s;
+}
+#menu .art-viewer .cone-card.is-active { transform: none; transition: opacity .85s ease, transform .85s cubic-bezier(.22, .8, .2, 1), visibility 0s; }
+#menu .art-viewer .cone-card.from-left,
+#menu .art-viewer .cone-card.leave-left { transform: translateX(-90px) scale(.96); }
+#menu .art-viewer .cone-card.leave-right { transform: translateX(90px) scale(.96); }
+/* same piece re-hung when a category starts with it */
+#menu .art-viewer .cone-card.rehang { animation: av-rehang 1.5s cubic-bezier(.45, 0, .25, 1) both !important; }
+@keyframes av-rehang {
+  0%   { opacity: 1; transform: none; }
+  42%  { opacity: 0; transform: translateX(-90px) scale(.96); }
+  58%  { opacity: 0; transform: translateX(90px) scale(.96); }
+  100% { opacity: 1; transform: none; }
+}
+.chip { transition: background .3s ease, color .3s ease, box-shadow .3s ease, transform .3s ease; }
+.chip:active { transform: scale(.96); }
