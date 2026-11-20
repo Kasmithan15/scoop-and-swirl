@@ -254,9 +254,15 @@ document.getElementById('year').textContent = new Date().getFullYear();
     navLinks.forEach(a => a.classList.toggle('is-current', a.getAttribute('href') === '#' + id));
   }
 
+  // order of pages in the top bar, used to pick the cube's turning direction
+  const ORDER = ['menu', 'story', 'visit', 'order', 'login', 'admin'];
+  const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CUBE_MS = 950;
+  let switching = false;
+
   function open(id, x, y, instant) {
     const panel = byId[id];
-    if (!panel || panel === current) return;
+    if (!panel || panel === current || switching) return;
     const prev = current;
     panel.style.setProperty('--x', x + 'px');
     panel.style.setProperty('--y', y + 'px');
@@ -264,23 +270,46 @@ document.getElementById('year').textContent = new Date().getFullYear();
     z = z === 61 ? 62 : 61;
     panel.style.zIndex = z;
     panel.scrollTop = 0;
+    current = panel;
+    markNav(id);
+
+    // ---- page -> page: 3D cube turn ----
+    if (prev && !instant && !reduceMotion) {
+      switching = true;
+      const dir = ORDER.indexOf(id) >= ORDER.indexOf(prev.id) ? 'left' : 'right';
+      document.body.classList.add('cube-stage');
+      prev.classList.add('cube', 'cube-out-' + dir);
+      panel.classList.add('cube', 'cube-in-' + dir, 'is-open');
+      panel.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        prev.classList.add('no-anim');
+        prev.classList.remove('is-open', 'cube', 'cube-out-' + dir);
+        prev.setAttribute('aria-hidden', 'true');
+        panel.classList.remove('cube', 'cube-in-' + dir);
+        document.body.classList.remove('cube-stage');
+        requestAnimationFrame(() => prev.classList.remove('no-anim'));
+        switching = false;
+        panel.focus({ preventScroll: true });
+      }, CUBE_MS);
+      return;
+    }
+
+    // ---- first page from the shop: its own reveal ----
     if (instant) panel.classList.add('no-anim');
     panel.classList.add('is-open');
     panel.setAttribute('aria-hidden', 'false');
     document.body.classList.add('panel-open');
     document.querySelector('.hero').style.setProperty('--ox', x + 'px');
     document.querySelector('.hero').style.setProperty('--oy', y + 'px');
-    current = panel;
-    markNav(id);
     if (instant) requestAnimationFrame(() => panel.classList.remove('no-anim'));
     setTimeout(() => panel.focus({ preventScroll: true }), instant ? 0 : 500);
-    // if switching from another page, quietly close the one underneath
-    if (prev) setTimeout(() => {
+    // (instant or reduced-motion switch) quietly close the page underneath
+    if (prev) {
       prev.classList.add('no-anim');
       prev.classList.remove('is-open');
       prev.setAttribute('aria-hidden', 'true');
       requestAnimationFrame(() => prev.classList.remove('no-anim'));
-    }, instant ? 0 : 950);
+    }
   }
 
   function close() {
