@@ -612,3 +612,26 @@ body.panel-open .nav-links a.nav-login.is-current { color: #fff; background: var
   #menu .photo-viewer .g-frame { aspect-ratio: 3 / 3.6; }
   #menu .photo-viewer .g figcaption { font-size: 1.1rem; margin-top: 10px; }
 }
+
+/* =====================================================================
+   LAPTOP / DESKTOP: artwork + Prev/Next always on one screen
+   - the photo height follows the window height
+   - Prev / Next sit on either side of the artwork, at its middle
+   ===================================================================== */
+@media (min-width: 761px) {
+  .art-viewer { position: relative; }
+  .av-wall { padding: 34px 20px 46px; }
+  #menu .art-viewer .m-photo { aspect-ratio: auto; height: clamp(170px, calc(100vh - 480px), 430px); }
+  #menu .photo-viewer .g-frame { aspect-ratio: auto; height: clamp(220px, calc(100vh - 330px), 520px); }
+  #menu .art-viewer .m-body { padding-top: 12px; gap: 4px; }
+  .art-viewer .av-btn.av-prev, .art-viewer .av-btn.av-next {
+    position: absolute; z-index: 3; top: calc(50% - 44px); transform: translateY(-50%);
+    min-width: 128px; padding: 15px 22px;
+    box-shadow: 0 10px 24px rgba(15, 46, 58, .18);
+  }
+  .art-viewer .av-btn.av-prev { left: max(10px, calc(50% - 360px)); background: rgba(255, 255, 255, .92); }
+  .art-viewer .av-btn.av-next { right: max(10px, calc(50% - 360px)); }
+  .art-viewer .av-btn.av-prev:hover, .art-viewer .av-btn.av-next:hover { transform: translateY(calc(-50% - 2px)); }
+  .av-controls { margin-top: 14px; }
+  .av-count { min-width: 0; }
+}
