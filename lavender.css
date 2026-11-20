@@ -293,3 +293,105 @@ body.cube-stage { overflow: hidden; }
 }
 /* the page's own content floats in just after the turn settles */
 .panel.cube-in-left .panel-inner > * > *, .panel.cube-in-right .panel-inner > * > * { animation-delay: calc(.75s + var(--i, 0) * .07s) !important; }
+
+/* =====================================================================
+   3D ART-GALLERY WALK
+   A bright gallery hallway with framed art for every page. On a page
+   link the camera walks down the hall, turns to the page's frame,
+   moves in close, and the page opens from it.
+   World units: hall 1200 wide x 700 tall x 4000 deep; eye 900px away.
+   ===================================================================== */
+.g3d {
+  position: fixed; inset: 0; z-index: 95; overflow: hidden;
+  perspective: 900px; perspective-origin: 50% 46%;
+  background: radial-gradient(ellipse at 50% 40%, #fbfaf7, #e9e6ef 80%);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .45s ease, visibility 0s linear .45s;
+}
+.g3d.on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .3s ease; }
+.g3d-stage { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; transform: scale(var(--s, 1)); }
+.g3d-world { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.g3d-world.walk { animation: g3d-walk var(--dur, 2.2s) cubic-bezier(.55, .05, .25, 1) forwards; }
+@keyframes g3d-walk {
+  0%   { transform: translateZ(0px) rotateY(0deg) translate3d(0px, 0px, 0px); }
+  58%  { transform: translateZ(0px) rotateY(0deg) translate3d(0px, 0px, var(--walk)); }
+  100% { transform: translateZ(var(--zc)) rotateY(var(--ry)) translate3d(var(--tx), var(--ty), var(--tz)); }
+}
+
+.g3d-plane { position: absolute; }
+.g3d-floor {
+  width: 1200px; height: 4000px; left: -600px; top: -2000px;
+  transform: translateY(350px) translateZ(-2000px) rotateX(90deg);
+  background:
+    linear-gradient(90deg, rgba(62,53,102,.06), transparent 18%, transparent 82%, rgba(62,53,102,.06)),
+    linear-gradient(180deg, #d6d2df 0%, #ebe8f1 60%, #f6f4f8 100%);
+}
+.g3d-ceiling {
+  width: 1200px; height: 4000px; left: -600px; top: -2000px;
+  transform: translateY(-350px) translateZ(-2000px) rotateX(-90deg);
+  background:
+    linear-gradient(90deg, transparent 47%, rgba(255,246,220,.95) 49%, rgba(255,246,220,.95) 51%, transparent 53%),
+    linear-gradient(180deg, #fdfcfa 0%, #ece9f1 100%);
+}
+.g3d-wall { width: 4000px; height: 700px; left: -2000px; top: -350px; }
+.g3d-left  { transform: translateX(-600px) translateZ(-2000px) rotateY(90deg);  background: linear-gradient(90deg, #faf8f4 0%, #ece8f2 100%); }
+.g3d-right { transform: translateX(600px)  translateZ(-2000px) rotateY(-90deg); background: linear-gradient(270deg, #faf8f4 0%, #ece8f2 100%); }
+.g3d-wall::after { /* skirting line along the floor */
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 18px; background: linear-gradient(#e4e0ea, #d8d3e1);
+}
+.g3d-back {
+  width: 1200px; height: 700px; left: -600px; top: -350px; transform: translateZ(-4000px);
+  background: radial-gradient(ellipse at 50% 40%, #ffffff, #e6e2ee);
+  display: grid; place-items: center; text-align: center;
+}
+.g3d-back p { font-family: "Yellowtail", cursive; font-size: 96px; color: #3E3566; line-height: 1; }
+.g3d-back small { display: block; margin-top: 18px; font: 500 22px "Poppins", sans-serif; letter-spacing: .4em; text-transform: uppercase; color: #6B6491; }
+
+/* framed art on the walls */
+.g3d-art {
+  position: absolute; left: -110px; top: -150px; width: 220px; height: 300px; margin: 0;
+  padding: 12px 12px 0; background: #fff;
+  border: 5px solid #C9A66B; box-sizing: border-box;
+  box-shadow: 0 24px 40px rgba(62, 53, 102, .22), 0 0 0 1px rgba(62,53,102,.08);
+}
+.g3d-art::before { /* warm spotlight washing the wall above the frame */
+  content: ""; position: absolute; left: -90px; right: -90px; top: -150px; height: 260px; z-index: -1;
+  background: radial-gradient(ellipse at 50% 0%, rgba(255, 236, 190, .75), transparent 70%);
+}
+.g3d-pic { width: 100%; height: 205px; background-size: cover; background-position: center; filter: saturate(.95) contrast(1.03); }
+.g3d-art figcaption { padding-top: 10px; text-align: center; font: 600 22px "Cormorant Garamond", Georgia, serif; color: #3E3566; line-height: 1.1; }
+.g3d-art figcaption small { display: block; margin-top: 4px; font: 500 9px "Poppins", sans-serif; letter-spacing: .3em; text-transform: uppercase; color: #6B6491; }
+.g3d-art[data-page="menu"]  { transform: translate3d(-597px, -40px, -700px)  rotateY(90deg); }
+.g3d-art[data-page="story"] { transform: translate3d(597px,  -40px, -1100px) rotateY(-90deg); }
+.g3d-art[data-page="visit"] { transform: translate3d(-597px, -40px, -1500px) rotateY(90deg); }
+.g3d-art[data-page="order"] { transform: translate3d(597px,  -40px, -1900px) rotateY(-90deg); }
+.g3d-art[data-page="login"] { transform: translate3d(-597px, -40px, -2300px) rotateY(90deg); }
+.g3d-art[data-page="admin"] { transform: translate3d(597px,  -40px, -2700px) rotateY(-90deg); }
+
+/* exhibit label, like the gallery title in the reference */
+.g3d-label {
+  position: absolute; left: 50%; bottom: 7vh; transform: translateX(-50%);
+  text-align: center; color: #3E3566; pointer-events: none;
+  opacity: 0; transition: opacity .6s ease .4s;
+}
+.g3d.on .g3d-label { opacity: 1; }
+.g3d-label small { display: block; font: 500 .62rem "Poppins", sans-serif; letter-spacing: .4em; text-transform: uppercase; color: #6B6491; margin-bottom: 6px; }
+.g3d-label b { font: 600 clamp(1.4rem, 3vw, 2.1rem) "Cormorant Garamond", Georgia, serif; letter-spacing: .14em; text-transform: uppercase; }
+
+/* spotlights painted on the walls above each frame (wall px: left = -z, right = z + 4000) */
+.g3d-art::before { display: none; }
+.g3d-left {
+  background:
+    radial-gradient(ellipse 210px 230px at 700px 120px,  rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 1500px 120px, rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 2300px 120px, rgba(255,236,190,.8), transparent 70%),
+    linear-gradient(90deg, #faf8f4 0%, #ece8f2 100%);
+}
+.g3d-right {
+  background:
+    radial-gradient(ellipse 210px 230px at 2900px 120px, rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 2100px 120px, rgba(255,236,190,.8), transparent 70%),
+    radial-gradient(ellipse 210px 230px at 1300px 120px, rgba(255,236,190,.8), transparent 70%),
+    linear-gradient(270deg, #faf8f4 0%, #ece8f2 100%);
+}
+@media (prefers-reduced-motion: reduce) { .g3d { display: none; } }

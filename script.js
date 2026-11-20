@@ -312,6 +312,40 @@ document.getElementById('year').textContent = new Date().getFullYear();
     }
   }
 
+  // ---- 3D art-gallery walk: hallway -> turn to the page's frame -> page opens ----
+  const g3d = document.querySelector('.g3d');
+  const g3dWorld = g3d && g3d.querySelector('.g3d-world');
+  const g3dLabel = g3d && g3d.querySelector('.g3d-label b');
+  const ART = { menu: ['L', -700], story: ['R', -1100], visit: ['L', -1500], order: ['R', -1900], login: ['L', -2300], admin: ['R', -2700] };
+  const NAMES = { menu: 'Menu', story: 'Our Story', visit: 'Find Us', order: 'Order Online', login: 'Members', admin: 'Staff Only' };
+  const WALK_MS = 2200;
+  let walking = false;
+  function galleryTo(id, x, y) {
+    if (!byId[id] || byId[id] === current || walking) return;
+    if (!g3d || reduceMotion || !ART[id]) { open(id, x, y); return; }
+    walking = true;
+    const [side, fz] = ART[id];
+    const st = g3d.style;
+    st.setProperty('--s', Math.max(.55, Math.min(1.25, innerHeight / 800)).toFixed(3));
+    st.setProperty('--walk', (-200 - fz) + 'px');           // walk until the frame is just ahead
+    st.setProperty('--zc', '560px');                        // finish close enough to fill the screen
+    st.setProperty('--ry', side === 'L' ? '-90deg' : '90deg');
+    st.setProperty('--tx', side === 'L' ? '597px' : '-597px');
+    st.setProperty('--ty', '40px');
+    st.setProperty('--tz', (-fz) + 'px');
+    st.setProperty('--dur', WALK_MS + 'ms');
+    g3dLabel.textContent = NAMES[id] || '';
+    g3dWorld.classList.remove('walk'); void g3dWorld.offsetWidth;
+    g3d.classList.add('on');
+    g3dWorld.classList.add('walk');
+    setTimeout(() => {
+      open(id, x, y, true);                 // page appears behind the gallery…
+      g3d.classList.remove('on');           // …and the gallery fades away into it
+      walking = false;                      // the next tap works straight away
+      setTimeout(() => { if (!g3d.classList.contains('on')) g3dWorld.classList.remove('walk'); }, 500);
+    }, WALK_MS);
+  }
+
   function close() {
     if (!current) return;
     current.classList.remove('is-open');
@@ -331,7 +365,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
       e.preventDefault();
       lastTrigger = current ? lastTrigger : a;
       const [x, y] = point(e.detail ? e : null, a);
-      open(id, x, y);
+      galleryTo(id, x, y);
       if (location.hash !== '#' + id) history.pushState({ panel: id }, '', '#' + id);
     } else if (id === 'top' || id === '') {
       e.preventDefault();
@@ -347,7 +381,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
   // browser back / forward
   window.addEventListener('popstate', () => {
     const id = location.hash.slice(1);
-    if (byId[id]) open(id, innerWidth / 2, innerHeight / 2);
+    if (byId[id]) open(id, innerWidth / 2, innerHeight / 2, true);
     else close();
   });
 

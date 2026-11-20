@@ -8,8 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Yellowtail&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=202611201200">
-  <link rel="stylesheet" href="lavender.css?v=202611201200">
+  <link rel="stylesheet" href="styles.css?v=202611201213">
+  <link rel="stylesheet" href="lavender.css?v=202611201213">
 </head>
 <body>
 
@@ -784,6 +784,26 @@
     </div>
   </section>
 
+  <!-- 3D art-gallery walk shown while moving to a page -->
+  <div class="g3d" aria-hidden="true">
+    <div class="g3d-stage">
+      <div class="g3d-world">
+        <div class="g3d-plane g3d-floor"></div>
+        <div class="g3d-plane g3d-ceiling"></div>
+        <div class="g3d-plane g3d-wall g3d-left"></div>
+        <div class="g3d-plane g3d-wall g3d-right"></div>
+        <div class="g3d-plane g3d-back"><p>Scoop &amp; Swirl<small>The Gelato Gallery</small></p></div>
+        <figure class="g3d-art" data-page="menu"><div class="g3d-pic" style="background-image:url('assets/img/vanilla.jpg')"></div><figcaption>Menu<small>La carta</small></figcaption></figure>
+        <figure class="g3d-art" data-page="story"><div class="g3d-pic" style="background-image:url('assets/img/display-counter.jpg')"></div><figcaption>Our Story<small>Since day one</small></figcaption></figure>
+        <figure class="g3d-art" data-page="visit"><div class="g3d-pic" style="background-image:url('assets/img/gelato-display.jpg')"></div><figcaption>Find Us<small>On the boardwalk</small></figcaption></figure>
+        <figure class="g3d-art" data-page="order"><div class="g3d-pic" style="background-image:url('assets/img/beach-cones.jpg')"></div><figcaption>Order Online<small>Delivered to you</small></figcaption></figure>
+        <figure class="g3d-art" data-page="login"><div class="g3d-pic" style="background-image:url('assets/img/cone-in-hand.jpg')"></div><figcaption>Members<small>Scoop card</small></figcaption></figure>
+        <figure class="g3d-art" data-page="admin"><div class="g3d-pic" style="background-image:url('assets/img/gelato-trays.jpg')"></div><figcaption>Staff Only<small>Back of house</small></figcaption></figure>
+      </div>
+    </div>
+    <div class="g3d-label"><small>Scoop &amp; Swirl Gallery</small><b></b></div>
+  </div>
+
   <!-- floating cart -->
   <a href="#order" class="cart-fab" hidden aria-label="View your order"><span class="cf-icon">🛒</span><span class="cf-count">0</span><span class="cf-total">$0.00</span><span class="cf-go">Checkout ›</span></a>
 
@@ -882,8 +902,8 @@
     </div>
   </section>
 
-  <script src="firebase-config.js?v=202611201200"></script>
-  <script src="script.js?v=202611201200"></script>
-  <script type="module" src="backend.js?v=202611201200"></script>
+  <script src="firebase-config.js?v=202611201213"></script>
+  <script src="script.js?v=202611201213"></script>
+  <script type="module" src="backend.js?v=202611201213"></script>
 </body>
 </html>
